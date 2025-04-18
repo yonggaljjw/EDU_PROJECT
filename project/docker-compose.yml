@@ -1,0 +1,10 @@
+services:
+  web:
+    build: .
+    container_name: flask_web
+    ports:
+      - "5000:5000"         # 호스트 5000 포트를 컨테이너 5000 포트와 매핑
+    env_file:
+      - .env                # 환경변수 파일 로드
+    restart: always         # 컨테이너 자동 재시작
+    depends_on: []          # 의존하는 서비스 없음 (DB/ES 외부에서 제공됨)
