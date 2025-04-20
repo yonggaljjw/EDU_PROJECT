@@ -1,11 +1,95 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>진로 설계  - 메인페이지</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Pretendard', sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #e0f7fa, #e1bee7);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 20px 60px;
+      background-color: white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #512da8;
+    }
+    nav a {
+      margin-left: 30px;
+      text-decoration: none;
+      color: #333;
+      font-size: 1rem;
+    }
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .hero h1 {
+      font-size: 3rem;
+      color: #4a148c;
+      margin-bottom: 20px;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      color: #555;
+      max-width: 700px;
+      margin-bottom: 40px;
+    }
+    .hero .cta-button {
+      padding: 15px 30px;
+      background-color: #7e57c2;
+      color: white;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .hero .cta-button:hover {
+      background-color: #5e35b1;
+    }
+    footer {
+      padding: 20px;
+      text-align: center;
+      background-color: #f3e5f5;
+      color: #666;
+      font-size: 0.9rem;
+    }
+  </style>
 </head>
 <body>
-    하이이
+    {% include "_navbar.html" %}
+
+  <section class="hero">
+    <h1>나에게 꼭 맞는 진로와 학과를 찾아보세요</h1>
+    <p>AI가 데이터를 분석해 여러분의 성향과 관심사에 맞는 진로와 학과를 추천해드립니다. 지금 바로 나만의 진로 로드맵을 시작해보세요!</p>
+    <button class="cta-button" onclick="window.location.href='/start'">진로 추천 시작하기</button>
+  </section>
+
+  <footer>
+    &copy; 2025 AI 진로설계. 모든 권리 보유.
+  </footer>
 </body>
 </html>

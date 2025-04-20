@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>로그인</title>
+  <style>
+   /* 전역 스타일 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Pretendard', sans-serif;
+}
+
+/* 네비게이션 영역 */
+header {
+  width: 100%;  /* ✅ 추가 */
+  padding: 20px 60px;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #512da8;
+}
+
+nav a {
+  margin-left: 30px;
+  text-decoration: none;
+  color: #333;
+  font-size: 1rem;
+}
+
+/* 페이지 스타일 */
+body {
+  background: linear-gradient(135deg, #e0f7fa, #e1bee7);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  /* align-items 제거! ✅ */
+}
+
+/* 로그인 컨텐츠 */
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+}
+
+h2 {
+  margin-bottom: 20px;
+  color: #4a148c;
+}
+
+form {
+  background: white;
+  padding: 30px 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+label {
+  display: block;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background-color: #7e57c2;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #5e35b1;
+}
+
+.msg {
+  color: red;
+  margin-bottom: 10px;
+}
+
+footer {
+  padding: 20px;
+  text-align: center;
+  background-color: #f3e5f5;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+  </style>
+
+
+</head>
+<body>
+    {% include "_navbar.html" %}
+  
+    <main>
+      <h2>로그인</h2>
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="msg">
+            {% for msg in messages %}
+              <div>{{ msg }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      <form method="POST">
+        <label>이메일</label>
+        <input type="email" name="email" required>
+  
+        <label>비밀번호</label>
+        <input type="password" name="password" required>
+  
+        <button type="submit">로그인</button>
+      </form>
+    </main>
+  
+    <footer>
+      &copy; 2025 AI 진로설계. 모든 권리 보유.
+    </footer>
+  </body>
+  
+</html>
