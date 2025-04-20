@@ -1,0 +1,15 @@
+<header>
+    <div class="logo">
+      <a href="/" style="text-decoration: none; color: inherit;">AI 진로설계</a>
+    </div>
+    <nav>
+      {% if session.get("user_id") %}
+        <span style="margin-right: 20px;">{{ session.get("username") }}님 환영합니다!</span>
+        <a href="/logout">로그아웃</a>
+      {% else %}
+        <a href="/register">회원가입</a>
+        <a href="/login">로그인</a>
+      {% endif %}
+    </nav>
+  </header>
+  
