@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>프로필 작성</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Pretendard', sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #e0f7fa, #e1bee7);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 20px 5%;
+      background-color: white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #512da8;
+    }
+    nav a {
+      margin-left: 30px;
+      text-decoration: none;
+      color: #333;
+      font-size: 1rem;
+    }
+    h2 {
+      margin-top: 40px;
+      text-align: center;
+      color: #4a148c;
+    }
+    form {
+      background: white;
+      padding: 30px 5%;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100% !important;
+      max-width: 900px;
+      margin: 40px auto;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      background-color: #7e57c2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      width: 100%;
+    }
+    footer {
+      padding: 20px;
+      text-align: center;
+      background-color: #f3e5f5;
+      color: #666;
+      font-size: 0.9rem;
+      margin-top: auto;
+    }
+
+    /* 반응형 스타일 */
+    @media (max-width: 768px) {
+      form {
+        padding: 30px 20px;
+      }
+      nav a {
+        margin-left: 15px;
+        font-size: 0.9rem;
+      }
+      .logo {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  {% include "_navbar.html" %}
+
+  <h2>프로필 작성</h2>
+  <form method="POST">
+    <label for="mbti">MBTI</label>
+    <input type="text" name="mbti" maxlength="4" required>
+
+    <label for="interest_tags">관심 키워드 (예: 코딩, 심리, 봉사)</label>
+    <input type="text" name="interest_tags">
+
+    <label for="favorite_subjects">선호 과목</label>
+    <input type="text" name="favorite_subjects">
+
+    <label for="strength_subjects">강점 과목</label>
+    <input type="text" name="strength_subjects">
+
+    <label for="desired_region">희망 지역</label>
+    <input type="text" name="desired_region">
+
+    <label for="target_career">희망 직업</label>
+    <input type="text" name="target_career">
+
+    <label for="activities">경험한 활동</label>
+    <textarea name="activities" rows="4"></textarea>
+
+    <button type="submit">저장하기</button>
+  </form>
+
+  <footer>
+    &copy; 2025 AI 진로설계 챗봇. 모든 권리 보유.
+  </footer>
+</body>
+</html>
