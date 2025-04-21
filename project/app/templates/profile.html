@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>내 프로필</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Pretendard', sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #e0f7fa, #e1bee7);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 20px 60px;
+      background-color: white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #512da8;
+    }
+    nav a {
+      margin-left: 30px;
+      text-decoration: none;
+      color: #333;
+      font-size: 1rem;
+    }
+
+    main {
+      flex: 1;
+      padding: 40px 20px;
+      max-width: 800px;
+      width: 100% !important;
+      margin: auto;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+
+    h2 {
+      text-align: center;
+      color: #4a148c;
+      margin-bottom: 30px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+      color: #333;
+    }
+
+    li strong {
+      color: #4a148c;
+    }
+
+    footer {
+      padding: 20px;
+      text-align: center;
+      background-color: #f3e5f5;
+      color: #666;
+      font-size: 0.9rem;
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+  {% include "_navbar.html" %}
+
+  <main>
+    <h2>내 프로필</h2>
+
+    {% if profile %}
+    <ul>
+      <li><strong>MBTI:</strong> {{ profile.mbti }}</li>
+      <li><strong>관심 키워드:</strong> {{ profile.interest_tags }}</li>
+      <li><strong>선호 과목:</strong> {{ profile.favorite_subjects }}</li>
+      <li><strong>강점 과목:</strong> {{ profile.strength_subjects }}</li>
+      <li><strong>희망 지역:</strong> {{ profile.desired_region }}</li>
+      <li><strong>희망 직업:</strong> {{ profile.target_career }}</li>
+      <li><strong>활동 경험:</strong> {{ profile.activities }}</li>
+    </ul>
+    {% else %}
+    <p>프로필 정보를 불러올 수 없습니다.</p>
+    {% endif %}
+  </main>
+
+  <footer>
+    &copy; 2025 AI 진로설계 챗봇. 모든 권리 보유.
+  </footer>
+</body>
+</html>
