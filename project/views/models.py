@@ -52,5 +52,3 @@ class JobsInfo(db.Model):
     job_code = db.Column(db.String(100))
     job = db.Column(db.String(255))
     possibility = db.Column(db.String(100))
-
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
