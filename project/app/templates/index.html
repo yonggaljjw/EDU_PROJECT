@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>진로 설계  - 메인페이지</title>
+  <title>진로 설계 - 메인페이지</title>
   <link href="https://fonts.googleapis.com/css2?family=Pretendard&display=swap" rel="stylesheet">
   <style>
     * {
@@ -12,12 +12,14 @@
       box-sizing: border-box;
       font-family: 'Pretendard', sans-serif;
     }
+
     body {
       background: linear-gradient(135deg, #e0f7fa, #e1bee7);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
+
     header {
       padding: 20px 60px;
       background-color: white;
@@ -26,37 +28,38 @@
       justify-content: space-between;
       align-items: center;
     }
+
     .logo {
       font-size: 1.8rem;
       font-weight: bold;
       color: #512da8;
     }
+
     nav a {
       margin-left: 30px;
       text-decoration: none;
       color: #333;
       font-size: 1rem;
     }
+
     .hero {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
       text-align: center;
       padding: 60px 20px;
     }
+
     .hero h1 {
       font-size: 3rem;
       color: #4a148c;
       margin-bottom: 20px;
     }
+
     .hero p {
       font-size: 1.2rem;
       color: #555;
       max-width: 700px;
-      margin-bottom: 40px;
+      margin: 0 auto 40px;
     }
+
     .hero .cta-button {
       padding: 15px 30px;
       background-color: #7e57c2;
@@ -67,9 +70,48 @@
       cursor: pointer;
       transition: background-color 0.3s;
     }
+
     .hero .cta-button:hover {
       background-color: #5e35b1;
     }
+
+    .content-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+      padding-bottom: 60px;
+    }
+
+    .info-card {
+      background-color: #ffffffdd;
+      padding: 30px 40px;
+      border-radius: 15px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      max-width: 800px;
+      width: 90%;
+      text-align: left;
+    }
+
+    .info-card h3 {
+      font-size: 1.5rem;
+      color: #512da8;
+      margin-bottom: 15px;
+    }
+
+    .info-card p {
+      font-size: 1.1rem;
+      color: #444;
+      line-height: 1.7;
+    }
+
+    .salary {
+      font-weight: bold;
+      font-size: 1.15rem;
+      color: #2e7d32;
+      margin-top: 15px;
+    }
+
     footer {
       padding: 20px;
       text-align: center;
@@ -77,16 +119,73 @@
       color: #666;
       font-size: 0.9rem;
     }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .info-card {
+        padding: 20px;
+      }
+
+      .info-card h3 {
+        font-size: 1.3rem;
+      }
+
+      .info-card p {
+        font-size: 1rem;
+      }
+    }
   </style>
 </head>
 <body>
-    {% include "_navbar.html" %}
+  {% include "_navbar.html" %}
 
   <section class="hero">
     <h1>나에게 꼭 맞는 진로와 학과를 찾아보세요</h1>
-    <p>AI가 데이터를 분석해 여러분의 성향과 관심사에 맞는 진로와 학과를 추천해드립니다. 지금 바로 나만의 진로 로드맵을 시작해보세요!</p>
+
     <button class="cta-button" onclick="window.location.href='/profile'">진로 추천 시작하기</button>
   </section>
+
+  <div class="content-wrapper">
+    {% if profile %}
+      {% set job_map = {
+        'INTJ': '전략 컨설턴트, 데이터 사이언티스트, 개발자',
+        'INTP': '연구원, 시스템 아키텍트, 이론 과학자',
+        'ENTJ': 'CEO, 기획자, 변호사',
+        'ENTP': '기술 창업가, 마케팅 전략가, 프로덕트 매니저',
+        'INFJ': '심리상담가, 작가, UX 디자이너',
+        'INFP': '소설가, 예술가, 비영리단체 활동가',
+        'ENFJ': '교사, HR 관리자, 사회복지사',
+        'ENFP': '브랜드 마케터, 콘텐츠 크리에이터, 여행 작가',
+        'ISTJ': '회계사, 법률 전문가, 행정 공무원',
+        'ISFJ': '간호사, 도서관 사서, 초등교사',
+        'ESTJ': '군 간부, 프로젝트 매니저, 운영 관리자',
+        'ESFJ': '의료 상담사, 고객 서비스 관리자, 보건 교사',
+        'ISTP': '기계 엔지니어, 정비사, 파일럿',
+        'ISFP': '패션 디자이너, 사진작가, 플로리스트',
+        'ESTP': '영업 매니저, 응급 구조사, 스포츠 코치',
+        'ESFP': 'MC, 배우, 이벤트 플래너'
+      } %}
+      <div class="info-card">
+        <h3>🌟 {{ profile.mbti }} 유형은 다음과 같은 직업에 많이 종사해요</h3>
+        <p>{{ job_map[profile.mbti] }}</p>
+      </div>
+    {% endif %}
+
+    {% if job_detail %}
+      <div class="info-card">
+        <h3>🔍 {{ session.get("username") }} 님이 관심 있는 <strong>{{ profile.target_career }}</strong>의 주요 정보</h3>
+        <p>{{ job_detail.summary }}</p>
+        {% if job_detail.salery %}
+          <p class="salary">💰 평균 연봉: {{ job_detail.salery }}</p>
+        {% else %}
+          <p class="salary">💰 평균 연봉 정보 없음</p>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
 
   <footer>
     &copy; 2025 AI 진로설계. 모든 권리 보유.

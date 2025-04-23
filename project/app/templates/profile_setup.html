@@ -126,13 +126,18 @@
     <input type="text" name="interest_tags">
   
     <label for="favorite_subjects">선호 과목</label>
-    <input type="text" name="favorite_subjects">
+<input type="text" name="favorite_subjects" placeholder="예: 수학, 과학, 영어 등">
   
     <label for="soft_skills">소프트 스킬</label>
     <input type="text" name="soft_skills">
   
     <label for="target_career">희망 직업</label>
-    <input type="text" name="target_career">
+    <select name="target_career" required>
+      <option value="" disabled selected>직업을 선택하세요</option>
+      {% for job in job_list %}
+        <option value="{{ job }}">{{ job }}</option>
+      {% endfor %}
+    </select>
   
     <label for="desired_region">희망 지역</label>
     <input type="text" name="desired_region">
@@ -166,4 +171,5 @@
       }
     }
   </script>
-  
+  </body>
+  </html>

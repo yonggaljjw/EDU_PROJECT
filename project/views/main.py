@@ -6,7 +6,17 @@ main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
 def home():
-    return render_template('index.html')
+    profile = None
+    job_detail = None
+
+    if 'user_id' in session:
+        profile = UserProfile.query.filter_by(user_id=session['user_id']).first()
+
+        if profile and profile.target_career:
+            job_detail = JobsInfo.query.filter_by(job=profile.target_career).first()
+
+    return render_template('index.html', profile=profile, job_detail=job_detail)
+
 
 @main_bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -113,8 +123,6 @@ def profile_setup():
     return render_template('profile_setup.html', job_list=job_list)
 
 
-from .models import JobsInfo
-
 @main_bp.route('/profile/edit', methods=['GET', 'POST'])
 def profile_edit():
     if 'user_id' not in session:
@@ -126,9 +134,9 @@ def profile_edit():
         flash("프로필이 없습니다. 먼저 작성해주세요.")
         return redirect(url_for('main.profile_setup'))
 
-    # 🟣 직업 목록 불러오기
+    # ✅ 직업 목록 불러오기
     job_list = JobsInfo.query.with_entities(JobsInfo.job).distinct().order_by(JobsInfo.job).all()
-    job_list = [j[0] for j in job_list if j[0]]
+    job_list = [job[0] for job in job_list if job[0]]
 
     if request.method == 'POST':
         profile.mbti = request.form.get('mbti')
