@@ -40,34 +40,44 @@
     main {
       flex: 1;
       padding: 40px 20px;
-      max-width: 800px;
+      max-width: 1000px;
       width: 100% !important;
       margin: auto;
-      background-color: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
-
 
     h2 {
       text-align: center;
       color: #4a148c;
-      margin-bottom: 30px;
+      margin-bottom: 40px;
+      font-size: 2rem;
     }
 
-    ul {
-      list-style: none;
-      padding: 0;
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
     }
 
-    li {
-      margin-bottom: 15px;
+    .profile-section {
+      background-color: #ffffff;
+      border-radius: 16px;
+      padding: 24px 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      transition: all 0.3s ease;
+    }
+
+    .section-title {
+      font-weight: 700;
       font-size: 1.1rem;
-      color: #333;
+      color: #512da8;
+      margin-bottom: 8px;
     }
 
-    li strong {
-      color: #4a148c;
+    .section-content {
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: #333;
+      word-break: break-word;
     }
 
     footer {
@@ -77,6 +87,12 @@
       color: #666;
       font-size: 0.9rem;
       margin-top: auto;
+    }
+
+    @media (max-width: 768px) {
+      .profile-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -88,17 +104,54 @@
     <h2>내 프로필</h2>
 
     {% if profile %}
-    <ul>
-      <li><strong>MBTI:</strong> {{ profile.mbti }}</li>
-      <li><strong>관심 키워드:</strong> {{ profile.interest_tags }}</li>
-      <li><strong>선호 과목:</strong> {{ profile.favorite_subjects }}</li>
-      <li><strong>강점 과목:</strong> {{ profile.strength_subjects }}</li>
-      <li><strong>희망 지역:</strong> {{ profile.desired_region }}</li>
-      <li><strong>희망 직업:</strong> {{ profile.target_career }}</li>
-      <li><strong>활동 경험:</strong> {{ profile.activities }}</li>
-    </ul>
+    <div class="profile-grid">
+      <div class="profile-section">
+        <div class="section-title">🧠 MBTI</div>
+        <div class="section-content">{{ profile.mbti }}</div>
+      </div>
+
+      <div class="profile-section">
+        <div class="section-title">📊 평균 성적</div>
+        <div class="section-content">{{ profile.grade_avg }}</div>
+      </div>
+
+      <div class="profile-section">
+        <div class="section-title">💡 관심 키워드</div>
+        <div class="section-content">{{ profile.interest_tags }}</div>
+      </div>
+
+      <div class="profile-section">
+        <div class="section-title">📚 선호 과목</div>
+        <div class="section-content">{{ profile.favorite_subjects }}</div>
+      </div>
+
+      <div class="profile-section">
+        <div class="section-title">🤝 소프트 스킬</div>
+        <div class="section-content">{{ profile.soft_skills }}</div>
+      </div>
+
+      <div class="profile-section">
+        <div class="section-title">🎯 희망 직업</div>
+        <div class="section-content">{{ profile.target_career }}</div>
+      </div>
+
+      <div class="profile-section">
+        <div class="section-title">📍 희망 지역</div>
+        <div class="section-content">{{ profile.desired_region }}</div>
+      </div>
+
+      <div class="profile-section">
+        <div class="section-title">🏫 선호 대학</div>
+        <div class="section-content">{{ profile.desired_university_type }}</div>
+      </div>
+
+      <div class="profile-section" style="grid-column: span 2;">
+        <div class="section-title">📌 활동 경험</div>
+        <div class="section-content">{{ profile.activities }}</div>
+      </div>
+    </div>
     {% else %}
-    <p>프로필 정보를 불러올 수 없습니다.</p>
+      <p>프로필 정보를 불러올 수 없습니다.</p>
     {% endif %}
   </main>
 

@@ -55,6 +55,17 @@
       display: block;
       font-weight: bold;
     }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+      height: 44px; /* input과 높이 맞춤 */
+    }
+
     input, textarea {
       width: 100%;
       padding: 10px;
@@ -100,30 +111,53 @@
   {% include "_navbar.html" %}
 
   <h2>프로필 수정</h2>
-  <form method="POST">
-    <label>MBTI</label>
-    <input type="text" name="mbti" value="{{ profile.mbti }}" required>
+<form method="POST">
+  <label>MBTI</label>
+  <select name="mbti" required>
+    <option value="" disabled {% if not profile.mbti %}selected{% endif %}>선택하세요</option>
+    {% for mbti in [
+      'INTJ','INTP','ENTJ','ENTP',
+      'INFJ','INFP','ENFJ','ENFP',
+      'ISTJ','ISFJ','ESTJ','ESFJ',
+      'ISTP','ISFP','ESTP','ESFP'
+    ] %}
+      <option value="{{ mbti }}" {% if profile.mbti == mbti %}selected{% endif %}>{{ mbti }}</option>
+    {% endfor %}
+  </select>
 
-    <label>관심 키워드</label>
-    <input type="text" name="interest_tags" value="{{ profile.interest_tags }}">
+  <label>평균 성적 (예: 3.2 또는 85)</label>
+  <input type="number" step="0.01" name="grade_avg" value="{{ profile.grade_avg }}">
 
-    <label>선호 과목</label>
-    <input type="text" name="favorite_subjects" value="{{ profile.favorite_subjects }}">
+  <label>관심 키워드</label>
+  <input type="text" name="interest_tags" value="{{ profile.interest_tags }}">
 
-    <label>강점 과목</label>
-    <input type="text" name="strength_subjects" value="{{ profile.strength_subjects }}">
+  <label>선호 과목</label>
+  <input type="text" name="favorite_subjects" value="{{ profile.favorite_subjects }}">
 
-    <label>희망 지역</label>
-    <input type="text" name="desired_region" value="{{ profile.desired_region }}">
+  <label>소프트 스킬</label>
+  <input type="text" name="soft_skills" value="{{ profile.soft_skills }}">
 
-    <label>희망 직업</label>
-    <input type="text" name="target_career" value="{{ profile.target_career }}">
+  <label>희망 직업</label>
+  <select name="target_career" required>
+    <option value="" disabled {% if not profile.target_career %}selected{% endif %}>직업을 선택하세요</option>
+    {% for job in job_list %}
+      <option value="{{ job }}" {% if profile.target_career == job %}selected{% endif %}>{{ job }}</option>
+    {% endfor %}
+  </select>
 
-    <label>경험한 활동</label>
-    <textarea name="activities" rows="4">{{ profile.activities }}</textarea>
+  <label>희망 지역</label>
+  <input type="text" name="desired_region" value="{{ profile.desired_region }}">
 
-    <button type="submit">수정하기</button>
-  </form>
+  <label>선호 대학 유형</label>
+  <input type="text" name="desired_university_type" value="{{ profile.desired_university_type }}">
+
+  <label>경험한 활동</label>
+  <textarea name="activities" rows="4">{{ profile.activities }}</textarea>
+
+
+  <button type="submit">수정하기</button>
+</form>
+
 
   <footer>
     &copy; 2025 AI 진로설계 챗봇. 모든 권리 보유.
