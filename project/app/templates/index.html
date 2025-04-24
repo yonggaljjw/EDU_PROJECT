@@ -141,11 +141,11 @@
 </head>
 <body>
   {% include "_navbar.html" %}
-
+  
   <section class="hero">
     <h1>나에게 꼭 맞는 진로와 학과를 찾아보세요</h1>
 
-    <button class="cta-button" onclick="window.location.href='/profile'">진로 추천 시작하기</button>
+    <button class="cta-button" onclick="window.location.href='/recommend'">진로 추천 시작하기</button>
   </section>
 
   <div class="content-wrapper">
@@ -175,20 +175,46 @@
     {% endif %}
 
     {% if job_detail %}
-      <div class="info-card">
-        <h3>🔍 {{ session.get("username") }} 님이 관심 있는 <strong>{{ profile.target_career }}</strong>의 주요 정보</h3>
-        <p>{{ job_detail.summary }}</p>
-        {% if job_detail.salery %}
-          <p class="salary">💰 평균 연봉: {{ job_detail.salery }}</p>
-        {% else %}
-          <p class="salary">💰 평균 연봉 정보 없음</p>
-        {% endif %}
-      </div>
-    {% endif %}
+    <div class="info-card">
+      <h3>🔍 {{ session.get("username") }} 님이 관심 있는 <strong>{{ profile.target_career }}</strong>의 주요 정보</h3>
+      <div id="job-summary" data-summary="{{ job_detail.summary | replace('\n', ' ') }}"></div>
+      {% if job_detail.salery %}
+        <p class="salary">💰 평균 연봉: {{ job_detail.salery }}</p>
+      {% else %}
+        <p class="salary">💰 평균 연봉 정보 없음</p>
+      {% endif %}
+    </div>
+    {% endif %}  <!-- ✅ 이 줄이 누락되어 있었음 -->
   </div>
+    
 
-  <footer>
-    &copy; 2025 AI 진로설계. 모든 권리 보유.
-  </footer>
 </body>
 </html>
+
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const container = document.getElementById("job-summary");
+    if (container) {
+      let rawText = container.dataset.summary;
+
+      // 1. 전체 텍스트에서 -, – 제거 (문장 앞/중간 모두)
+      rawText = rawText.replace(/[\–\-]\s*/g, '');
+
+      // 2. 마침표+한글 기준으로 문장 나누기
+      const sentences = rawText
+        .replace(/([.])\s+(?=[가-힣])/g, "$1|")  // 마침표 뒤에 한글이 오면 구분자 삽입
+        .split("|")                             // 구분자로 분할
+        .map(p => p.trim())                     // 앞뒤 공백 제거
+        .filter(p => p.length > 0);             // 빈 문자열 제거
+
+      // 3. 각 문장 <p>로 감싸기
+      container.innerHTML = sentences
+        .map(sentence => `<p>${sentence}</p>`)
+        .join('');
+    }
+  });
+</script>
+
+
+
+

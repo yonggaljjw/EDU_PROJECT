@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import db, User, UserProfile, JobsInfo  # ✅ JobsInfo 추가
-
+from .models import db, User, UserProfile, JobsInfo, AiResult  # ✅ JobsInfo 추가
+import logging
 main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
@@ -154,3 +154,84 @@ def profile_edit():
         return redirect(url_for('main.profile'))
 
     return render_template('profile_edit.html', profile=profile, job_list=job_list)
+
+
+@main_bp.route('/recommend')
+def recommend():
+    return render_template('recommend.html')
+
+
+
+import logging
+import os
+import traceback
+import openai  # ✅ openai==0.28.1 버전에 맞게
+
+# OpenAI API 키 설정
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+@main_bp.route('/recommend/ai', methods=['GET', 'POST'])
+def recommend_ai():
+    if 'user_id' not in session:
+        flash("로그인이 필요합니다.")
+        return redirect(url_for('main.login'))
+
+    profile = UserProfile.query.filter_by(user_id=session['user_id']).first()
+    if not profile:
+        flash("AI 분석을 위해 먼저 프로필을 작성해주세요.")
+        return redirect(url_for('main.profile_setup'))
+
+    questions = [
+        "어떤 활동을 할 때 가장 보람을 느끼나요?",
+        "이전 경험 중에서 기억에 남는 프로젝트나 성과는 무엇인가요?",
+        "당신이 가장 가치 있게 여기는 삶의 목표는 무엇인가요?"
+    ]
+
+    if request.method == 'POST':
+        try:
+            answers = [request.form.get(f"answer{i+1}") for i in range(3)]
+            prompt = f"""당신의 MBTI는 {profile.mbti}, 성적 평균은 {profile.grade_avg}, 관심 분야는 {profile.interest_tags}, 선호 과목은 {profile.favorite_subjects}, 희망 진로는 {profile.target_career}입니다.
+
+추가 정보:
+1. {questions[0]} → {answers[0]}
+2. {questions[1]} → {answers[1]}
+3. {questions[2]} → {answers[2]}
+
+이 정보를 종합하여, 앞으로 나아가야 할 방향과 추천 진로, 관련 학과, 이유를 구체적으로 설명해 주세요."""
+
+            logging.debug("🧠 GPT 프롬프트 생성 완료")
+
+            response = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": "너는 진로 전문 상담가야."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7,
+                max_tokens=1000
+            )
+
+            result_text = response['choices'][0]['message']['content']
+            logging.debug(f"✅ GPT 응답 수신: {result_text[:100]}...")
+
+            ai_result = AiResult(user_id=session['user_id'], result=result_text)
+            db.session.add(ai_result)
+            db.session.commit()
+
+            return redirect(url_for('main.recommend_result', result_id=ai_result.id))
+
+        except Exception as e:
+            logging.error("❌ AI 분석 중 예외 발생: %s", traceback.format_exc())
+            flash("AI 분석 중 오류가 발생했습니다.")
+            return redirect(url_for('main.recommend_ai'))
+
+    return render_template("recommend_ai.html", profile=profile, questions=questions)
+
+@main_bp.route('/recommend/result')
+def recommend_result():
+    result_id = request.args.get('result_id')
+    ai_result = AiResult.query.filter_by(id=result_id, user_id=session['user_id']).first()
+    if not ai_result:
+        flash("결과를 찾을 수 없습니다.")
+        return redirect(url_for('main.recommend_ai'))
+    return render_template('recommend_result.html', result=ai_result.result)

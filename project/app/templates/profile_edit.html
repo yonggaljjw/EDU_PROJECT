@@ -131,8 +131,8 @@
   <label>관심 키워드</label>
   <input type="text" name="interest_tags" value="{{ profile.interest_tags }}">
 
-  <label for="favorite_subjects">선호 과목</label>
-<input type="text" name="favorite_subjects" placeholder="예: 수학, 과학, 영어 등">
+  <label>선호 과목</label>
+<input type="text" name="favorite_subjects" value="{{ profile.favorite_subjects }}">
 
   <label>소프트 스킬</label>
   <input type="text" name="soft_skills" value="{{ profile.soft_skills }}">
@@ -159,10 +159,6 @@
 </form>
 
 
-
-  <footer>
-    &copy; 2025 AI 진로설계. 모든 권리 보유.
-  </footer>
 
    <!-- JS 스크립트 -->
    <script>
