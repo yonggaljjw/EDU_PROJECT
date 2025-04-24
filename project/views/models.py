@@ -52,3 +52,36 @@ class JobsInfo(db.Model):
     job_code = db.Column(db.String(100))
     job = db.Column(db.String(255))
     possibility = db.Column(db.String(100))
+
+
+class SchoolEmploymentStats(db.Model):
+    __tablename__ = 'school_employment_stats'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    survey_date = db.Column(db.String(20))
+    education_level = db.Column(db.String(50))
+    school_name = db.Column(db.String(100))
+    school_code = db.Column(db.BigInteger)
+    school_status = db.Column(db.String(20))
+    branch_type = db.Column(db.String(20))
+    region = db.Column(db.String(20))
+    establish_type = db.Column(db.String(20))
+    course_type = db.Column(db.String(50))
+    major_category = db.Column(db.String(50))
+    mid_category = db.Column(db.String(50))
+    minor_category = db.Column(db.String(50))
+    major_code = db.Column(db.String(20))
+    major_name = db.Column(db.String(100))
+    graduates_total = db.Column(db.Integer)
+    graduates_male = db.Column(db.Integer)
+    graduates_female = db.Column(db.Integer)
+    employment_rate_total = db.Column(db.Float)
+    employment_rate_male = db.Column(db.Float)
+    employment_rate_female = db.Column(db.Float)
+
+class AiResult(db.Model):
+    __tablename__ = 'ai_results'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    result = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)

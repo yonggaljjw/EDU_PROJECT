@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI 진로 추천 질문</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Pretendard', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f3e5f5, #e1f5fe);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ✅ _navbar.html과 동일한 header 스타일 */
+    header {
+      padding: 20px 60px;
+      background-color: white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #512da8;
+    }
+
+    nav a {
+      margin-left: 30px;
+      text-decoration: none;
+      color: #333;
+      font-size: 1rem;
+    }
+
+    nav a:hover {
+      color: #512da8;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 50px auto;
+      padding: 40px;
+      background-color: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #6a1b9a;
+      margin-bottom: 30px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+      margin-top: 25px;
+      color: #333;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      resize: vertical;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      margin-top: 30px;
+      padding: 15px;
+      background-color: #7e57c2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #5e35b1;
+    }
+
+    .profile-info {
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      font-size: 0.95rem;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ✅ 동일한 구조를 위한 header + nav -->
+  <header>
+    <div class="logo">
+      <a href="/" style="text-decoration: none; color: inherit;">AI 진로설계</a>
+    </div>
+    <nav>
+      {% if session.get("user_id") %}
+        <a href="/profile">내 프로필</a>
+        <a href="/profile/edit">프로필 수정</a>
+        <span style="margin-left: 20px;">{{ session.get("username") }}님 환영합니다!</span>
+        <a href="/logout">로그아웃</a>
+      {% else %}
+        <a href="/register">회원가입</a>
+        <a href="/login">로그인</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <div class="container">
+    <h1>AI 맞춤형 진로 분석 질문</h1>
+
+    <div class="profile-info">
+      <strong>📌 현재 프로필 요약:</strong><br>
+      {% if profile %}
+        MBTI: {{ profile.mbti }} / 평균 성적: {{ profile.grade_avg }} / 희망 직업: {{ profile.target_career }}
+      {% else %}
+        <p style="color: red;">⚠️ 프로필 정보를 불러올 수 없습니다.</p>
+      {% endif %}
+    </div>
+
+    <form method="POST" action="{{ url_for('main.recommend_ai') }}">
+      <label for="answer1">1. {{ questions[0] }}</label>
+      <textarea id="answer1" name="answer1" required></textarea>
+
+      <label for="answer2">2. {{ questions[1] }}</label>
+      <textarea id="answer2" name="answer2" required></textarea>
+
+      <label for="answer3">3. {{ questions[2] }}</label>
+      <textarea id="answer3" name="answer3" required></textarea>
+
+      <button type="submit">AI 분석 요청하기</button>
+    </form>
+  </div>
+
+  <script>
+    const form = document.querySelector('form');
+    const submitBtn = form.querySelector('button');
+
+    form.addEventListener('submit', () => {
+      submitBtn.disabled = true;
+      submitBtn.innerText = "분석 중입니다... 잠시만 기다려주세요";
+    });
+  </script>
+</body>
+</html>

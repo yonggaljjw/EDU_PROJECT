@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 진로 분석 결과</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      font-family: 'Pretendard', sans-serif;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: linear-gradient(to right, #ede7f6, #e3f2fd);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #333;
+    }
+
+    /* ✅ _navbar.html과 동일한 header/nav 스타일 */
+    header {
+      padding: 20px 60px;
+      background-color: white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #512da8;
+    }
+
+    nav a {
+      margin-left: 30px;
+      text-decoration: none;
+      color: #333;
+      font-size: 1rem;
+    }
+
+    nav a:hover {
+      color: #512da8;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 50px auto;
+      padding: 40px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #6a1b9a;
+      margin-bottom: 30px;
+    }
+
+    .result-box {
+      white-space: pre-wrap;
+      line-height: 1.8;
+      font-size: 1.05rem;
+      background-color: #f9f9f9;
+      border-radius: 10px;
+      padding: 25px;
+      border-left: 5px solid #7e57c2;
+    }
+
+    .btn-wrap {
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .btn-wrap button {
+      padding: 12px 25px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #7e57c2;
+      color: white;
+      cursor: pointer;
+      margin: 0 10px;
+      transition: background-color 0.3s;
+    }
+
+    .btn-wrap button:hover {
+      background-color: #5e35b1;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: 20px;
+        padding: 20px;
+      }
+
+      .btn-wrap button {
+        width: 100%;
+        margin: 10px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ✅ _navbar.html 스타일 그대로 적용 -->
+  <header>
+    <div class="logo">
+      <a href="/" style="text-decoration: none; color: inherit;">AI 진로설계</a>
+    </div>
+    <nav>
+      {% if session.get("user_id") %}
+        <a href="/profile">내 프로필</a>
+        <a href="/profile/edit">프로필 수정</a>
+        <span style="margin-left: 20px;">{{ session.get("username") }}님 환영합니다!</span>
+        <a href="/logout">로그아웃</a>
+      {% else %}
+        <a href="/register">회원가입</a>
+        <a href="/login">로그인</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <div class="container">
+    <h1>🔍 AI 진로 분석 결과</h1>
+
+    <div class="result-box" id="result-text">
+      {{ result }}
+    </div>
+
+    <div class="btn-wrap">
+      <button onclick="window.history.back()">← 다시 입력</button>
+      <button onclick="downloadPDF()">📄 PDF로 저장</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+    function downloadPDF() {
+      const element = document.getElementById('result-text');
+      const opt = {
+        margin:       1,
+        filename:     'career_analysis_result.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      html2pdf().from(element).set(opt).save();
+    }
+  </script>
+</body>
+</html>
