@@ -99,7 +99,7 @@
       margin-bottom: 15px;
     }
 
-    .info-card p {
+    .info-card p, .info-card li {
       font-size: 1.1rem;
       color: #444;
       line-height: 1.7;
@@ -141,10 +141,9 @@
 </head>
 <body>
   {% include "_navbar.html" %}
-  
+
   <section class="hero">
     <h1>나에게 꼭 맞는 진로와 학과를 찾아보세요</h1>
-
     <button class="cta-button" onclick="window.location.href='/recommend'">진로 추천 시작하기</button>
   </section>
 
@@ -172,49 +171,55 @@
         <h3>🌟 {{ profile.mbti }} 유형은 다음과 같은 직업에 많이 종사해요</h3>
         <p>{{ job_map[profile.mbti] }}</p>
       </div>
-    {% endif %}
 
-    {% if job_detail %}
-    <div class="info-card">
-      <h3>🔍 {{ session.get("username") }} 님이 관심 있는 <strong>{{ profile.target_career }}</strong>의 주요 정보</h3>
-      <div id="job-summary" data-summary="{{ job_detail.summary | replace('\n', ' ') }}"></div>
-      {% if job_detail.salery %}
-        <p class="salary">💰 평균 연봉: {{ job_detail.salery }}</p>
-      {% else %}
-        <p class="salary">💰 평균 연봉 정보 없음</p>
+      {% if job_detail %}
+      <div class="info-card">
+        <h3>🔍 {{ session.get("username") }} 님이 관심 있는 <strong>{{ profile.target_career }}</strong>의 주요 정보</h3>
+        <div id="job-summary" data-summary="{{ job_detail.summary | replace('\n', ' ') }}"></div>
+        {% if job_detail.salery %}
+          <p class="salary">💰 평균 연봉: {{ job_detail.salery }}</p>
+        {% else %}
+          <p class="salary">💰 평균 연봉 정보 없음</p>
+        {% endif %}
+      </div>
       {% endif %}
-    </div>
-    {% endif %}  <!-- ✅ 이 줄이 누락되어 있었음 -->
-  </div>
-    
 
+    {% else %}
+      <!-- 로그인하지 않은 사용자 전용 섹션 -->
+      <div class="info-card">
+        <h3>🎓 전국 학교/학과 취업률 TOP 3</h3>
+        <ul>
+          {% for s in random_schools %}
+            <li><strong>{{ s.school_name }} {{ s.dept_name }}</strong> – 취업률 {{ s.emp_rate_total }}%</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="info-card">
+        <h3>💼 인기 직업 및 연봉 정보</h3>
+        <ul>
+          {% for j in random_jobs %}
+            <li><strong>{{ j.job }}</strong> – 평균 연봉 {{ j.salery }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </div>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById("job-summary");
+      if (container) {
+        let rawText = container.dataset.summary;
+        rawText = rawText.replace(/[\–\-]\s*/g, '');
+        const sentences = rawText
+          .replace(/([.])\s+(?=[가-힣])/g, "$1|")
+          .split("|")
+          .map(p => p.trim())
+          .filter(p => p.length > 0);
+        container.innerHTML = sentences.map(s => `<p>${s}</p>`).join('');
+      }
+    });
+  </script>
 </body>
 </html>
-
-<script>
-  window.addEventListener('DOMContentLoaded', () => {
-    const container = document.getElementById("job-summary");
-    if (container) {
-      let rawText = container.dataset.summary;
-
-      // 1. 전체 텍스트에서 -, – 제거 (문장 앞/중간 모두)
-      rawText = rawText.replace(/[\–\-]\s*/g, '');
-
-      // 2. 마침표+한글 기준으로 문장 나누기
-      const sentences = rawText
-        .replace(/([.])\s+(?=[가-힣])/g, "$1|")  // 마침표 뒤에 한글이 오면 구분자 삽입
-        .split("|")                             // 구분자로 분할
-        .map(p => p.trim())                     // 앞뒤 공백 제거
-        .filter(p => p.length > 0);             // 빈 문자열 제거
-
-      // 3. 각 문장 <p>로 감싸기
-      container.innerHTML = sentences
-        .map(sentence => `<p>${sentence}</p>`)
-        .join('');
-    }
-  });
-</script>
-
-
-
-
