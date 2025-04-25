@@ -20,7 +20,6 @@
       flex-direction: column;
     }
 
-    /* ✅ _navbar.html과 동일한 header 스타일 */
     header {
       padding: 20px 60px;
       background-color: white;
@@ -48,7 +47,8 @@
     }
 
     .container {
-      max-width: 900px;
+      max-width: 1200px;
+      width: 50%;
       margin: 50px auto;
       padding: 40px;
       background-color: white;
@@ -106,11 +106,36 @@
       font-size: 0.95rem;
       color: #555;
     }
+
+    /* ✅ 중앙 로딩 오버레이 (기본 비활성화) */
+    #loading-status {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(255, 255, 255, 0.85);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.5rem;
+      color: #7e57c2;
+      font-weight: 500;
+    }
+
+    #loading-text {
+      animation: fadeInOut 1.5s ease-in-out infinite;
+    }
+
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 1; }
+    }
   </style>
 </head>
 <body>
 
-  <!-- ✅ 동일한 구조를 위한 header + nav -->
   <header>
     <div class="logo">
       <a href="/" style="text-decoration: none; color: inherit;">AI 진로설계</a>
@@ -154,13 +179,38 @@
     </form>
   </div>
 
+  <!-- ✅ 중앙 오버레이 로딩 메시지 -->
+  <div id="loading-status">
+    <span id="loading-text">분석을 시작합니다...</span>
+  </div>
+
   <script>
     const form = document.querySelector('form');
     const submitBtn = form.querySelector('button');
+    const loadingStatus = document.getElementById('loading-status');
+    const loadingText = document.getElementById('loading-text');
 
     form.addEventListener('submit', () => {
       submitBtn.disabled = true;
-      submitBtn.innerText = "분석 중입니다... 잠시만 기다려주세요";
+      submitBtn.innerText = "처리 중입니다...";
+      loadingStatus.style.display = "flex";
+
+      const messages = [
+        "🧠 사용자의 정보를 분석하는 중입니다...",
+        "🗂️ 진로 컨설팅 방안을 정리 중입니다...",
+        "📄 최종 결과를 정리하고 있습니다..."
+      ];
+
+      let index = 0;
+
+      const interval = setInterval(() => {
+        if (index < messages.length) {
+          loadingText.innerText = messages[index];
+          index++;
+        } else {
+          clearInterval(interval);
+        }
+      }, 6500);
     });
   </script>
 </body>

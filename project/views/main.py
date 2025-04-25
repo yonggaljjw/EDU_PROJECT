@@ -1,22 +1,44 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import db, User, UserProfile, JobsInfo, AiResult  # ✅ JobsInfo 추가
+from .models import db, User, UserProfile, JobsInfo, AiResult, EmploymentFull  # ✅ JobsInfo 추가
 import logging
+import random
 main_bp = Blueprint('main', __name__)
+
 
 @main_bp.route('/')
 def home():
     profile = None
     job_detail = None
+    random_schools = []
+    random_jobs = []
 
     if 'user_id' in session:
         profile = UserProfile.query.filter_by(user_id=session['user_id']).first()
-
         if profile and profile.target_career:
             job_detail = JobsInfo.query.filter_by(job=profile.target_career).first()
+    else:
+        # 전체 학교/직업 데이터 가져온 후 파이썬에서 랜덤 추출
+        all_schools = EmploymentFull.query.all()
+        all_jobs = JobsInfo.query.filter(JobsInfo.salery.isnot(None)).all()
 
-    return render_template('index.html', profile=profile, job_detail=job_detail)
+        if len(all_schools) >= 3:
+            random_schools = random.sample(all_schools, 3)
+        else:
+            random_schools = all_schools
 
+        if len(all_jobs) >= 3:
+            random_jobs = random.sample(all_jobs, 3)
+        else:
+            random_jobs = all_jobs
+
+    return render_template(
+        'index.html',
+        profile=profile,
+        job_detail=job_detail,
+        random_schools=random_schools,
+        random_jobs=random_jobs
+    )
 
 @main_bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -164,12 +186,59 @@ def recommend():
 
 import logging
 import os
+import time
 import traceback
-import openai  # ✅ openai==0.28.1 버전에 맞게
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# OpenAI API 키 설정
+import openai
+
+# 로깅 설정
+logging.basicConfig(level=logging.DEBUG)
+
+# OpenAI 키 설정
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+
+# GPT 요청 함수 (질문별로 맞춤화된 프롬프트)
+def get_gpt_answer(index, question_type, profile, answer):
+    base_info = f"""
+당신의 MBTI는 {profile.mbti},
+성적 평균은 {profile.grade_avg},
+관심 분야는 {profile.interest_tags},
+선호 과목은 {profile.favorite_subjects},
+소프트 스킬은 {profile.soft_skills},
+희망 진로는 {profile.target_career},
+희망 지역은 {profile.desired_region},
+희망 대학 유형은 {profile.desired_university_type},
+기타 활동 이력은 {profile.activities} 입니다.
+"""
+
+    if question_type == "요약":
+        prompt = base_info + f"\n\n추가 질문:\n{answer}\n\n위 정보를 요약하고, 진로 방향과 관련 직업을 간결하게 정리해줘."
+    elif question_type == "진로":
+        prompt = base_info + "\n\n희망 진로에 필요한 자격증, 준비 전략 등을 구체적으로 제시해줘."
+    elif question_type == "학과":
+        prompt = base_info + "\n\n성적과 목표를 기반으로 진학 가능한 학과와 학교를 추천해줘."
+    else:
+        prompt = "[잘못된 질문 유형]"
+
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "너는 진로 전문 상담가야."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=500
+        )
+        return response['choices'][0]['message']['content']
+    except Exception as e:
+        logging.error("❌ GPT 호출 실패: %s", traceback.format_exc())
+        return f"[GPT 응답 오류 발생 - {question_type}]"
+
+
+# 메인 라우트 함수
 @main_bp.route('/recommend/ai', methods=['GET', 'POST'])
 def recommend_ai():
     if 'user_id' not in session:
@@ -177,42 +246,30 @@ def recommend_ai():
         return redirect(url_for('main.login'))
 
     profile = UserProfile.query.filter_by(user_id=session['user_id']).first()
+
     if not profile:
         flash("AI 분석을 위해 먼저 프로필을 작성해주세요.")
         return redirect(url_for('main.profile_setup'))
 
     questions = [
-        "어떤 활동을 할 때 가장 보람을 느끼나요?",
-        "이전 경험 중에서 기억에 남는 프로젝트나 성과는 무엇인가요?",
-        "당신이 가장 가치 있게 여기는 삶의 목표는 무엇인가요?"
+        "당신의 경험과 특성을 요약해 주세요.",
+        "당신이 희망하는 진로에 맞춘 준비 전략이 궁금합니다.",
+        "당신에게 적합한 학과나 대학을 추천해주세요."
     ]
 
     if request.method == 'POST':
         try:
             answers = [request.form.get(f"answer{i+1}") for i in range(3)]
-            prompt = f"""당신의 MBTI는 {profile.mbti}, 성적 평균은 {profile.grade_avg}, 관심 분야는 {profile.interest_tags}, 선호 과목은 {profile.favorite_subjects}, 희망 진로는 {profile.target_career}입니다.
+            types = ["요약", "진로", "학과"]
 
-추가 정보:
-1. {questions[0]} → {answers[0]}
-2. {questions[1]} → {answers[1]}
-3. {questions[2]} → {answers[2]}
+            with ThreadPoolExecutor(max_workers=3) as executor:
+                futures = [
+                    executor.submit(get_gpt_answer, i, types[i], profile, answers[i])
+                    for i in range(3)
+                ]
+                results = [f.result() for f in as_completed(futures)]
 
-이 정보를 종합하여, 앞으로 나아가야 할 방향과 추천 진로, 관련 학과, 이유를 구체적으로 설명해 주세요."""
-
-            logging.debug("🧠 GPT 프롬프트 생성 완료")
-
-            response = openai.ChatCompletion.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "너는 진로 전문 상담가야."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.7,
-                max_tokens=1000
-            )
-
-            result_text = response['choices'][0]['message']['content']
-            logging.debug(f"✅ GPT 응답 수신: {result_text[:100]}...")
+            result_text = "\n\n".join([f"Q{i+1}. {results[i]}" for i in range(3)])
 
             ai_result = AiResult(user_id=session['user_id'], result=result_text)
             db.session.add(ai_result)
@@ -235,3 +292,12 @@ def recommend_result():
         flash("결과를 찾을 수 없습니다.")
         return redirect(url_for('main.recommend_ai'))
     return render_template('recommend_result.html', result=ai_result.result)
+
+@main_bp.route('/history')
+def history():
+    if 'user_id' not in session:
+        flash("로그인이 필요합니다.")
+        return redirect(url_for('main.login'))
+
+    results = AiResult.query.filter_by(user_id=session['user_id']).order_by(AiResult.created_at.desc()).all()
+    return render_template("history.html", results=results)

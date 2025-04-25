@@ -3,6 +3,14 @@ from config import Config
 from views.models import db  # 💡 models.py의 db 그대로 가져와야 함
 from views.main import main_bp
 
+import logging
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[logging.StreamHandler()]
+)
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
