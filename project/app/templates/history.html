@@ -1,40 +1,72 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>과거 AI 분석 결과</title>
   <link href="https://fonts.googleapis.com/css2?family=Pretendard&display=swap" rel="stylesheet" />
   <style>
-    body {
-      font-family: 'Pretendard', sans-serif;
+    * {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Pretendard', sans-serif;
+    }
+
+    body {
       background: linear-gradient(135deg, #e0f7fa, #e1bee7);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     header {
+      width: 100%;
       padding: 20px 60px;
-      background-color: white;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      background: linear-gradient(135deg, #7e57c2, #5c6bc0);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
 
     .logo {
-      font-size: 1.8rem;
+      font-size: 2rem;
       font-weight: bold;
-      color: #512da8;
+      color: white;
+      letter-spacing: 1px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
     }
 
     nav a {
       margin-left: 30px;
       text-decoration: none;
-      color: #333;
-      font-size: 1rem;
+      color: white;
+      font-size: 1.1rem;
+      position: relative;
+      padding-bottom: 5px;
+      transition: all 0.3s;
+    }
+
+    nav a::after {
+      content: '';
+      position: absolute;
+      width: 0%;
+      height: 2px;
+      bottom: 0;
+      left: 0;
+      background-color: white;
+      transition: all 0.3s ease-in-out;
     }
 
     nav a:hover {
-      color: #512da8;
+      color: #ffe082;
+    }
+
+    nav a:hover::after {
+      width: 100%;
     }
 
     .container {
@@ -43,6 +75,7 @@
       background: white;
       border-radius: 10px;
       padding: 40px;
+      width: 90%;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
@@ -50,44 +83,55 @@
       text-align: center;
       color: #6a1b9a;
       margin-bottom: 30px;
+      font-size: 2rem;
     }
 
+    /* 여기부터 히스토리 아이템 스타일 */
     .accordion-item {
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid #ccc;
       cursor: pointer;
+      margin-bottom: 10px;
     }
 
     .accordion-title {
-      padding: 15px;
-      background-color: #f3f3f3;
+      padding: 12px 20px; /* ✅ 얇고 길게 수정 */
+      background-color: #fafafa;
       font-weight: bold;
+      font-size: 1.05rem;
       color: #333;
       display: flex;
       justify-content: space-between;
       align-items: center;
-    }
-
-    .accordion-content {
-      padding: 20px;
-      background-color: #fafafa;
-      white-space: pre-wrap;
-      display: none;
+      transition: background-color 0.3s;
     }
 
     .accordion-title:hover {
       background-color: #e0e0e0;
     }
 
-    .timestamp {
-      color: #777;
-      font-size: 0.9rem;
+    .accordion-content {
+      padding: 18px 20px;
+      background-color: #f9f9f9;
+      white-space: pre-wrap;
+      display: none;
+      line-height: 1.6;
+      font-size: 1rem;
     }
 
-    .active .accordion-content {
+    .accordion-item.active .accordion-content {
       display: block;
+    }
+
+    .arrow {
+      transition: transform 0.3s ease;
+    }
+
+    .accordion-item.active .arrow {
+      transform: rotate(180deg);
     }
   </style>
 </head>
+
 <body>
 
   <header>
@@ -105,12 +149,13 @@
 
   <div class="container">
     <h1>📜 과거 분석 결과 보기</h1>
+
     {% if results %}
       {% for r in results %}
         <div class="accordion-item">
           <div class="accordion-title" onclick="toggleAccordion(this)">
-            <span>📝 분석 결과 - {{ r.created_at.strftime('%Y년 %m월 %d일 %H:%M') }}</span>
-            <span>▼</span>
+            <span>📝 {{ r.created_at.strftime('%Y년 %m월 %d일 %H:%M') }} 분석 결과</span>
+            <span class="arrow">▼</span>
           </div>
           <div class="accordion-content">{{ r.result }}</div>
         </div>
@@ -124,14 +169,8 @@
     function toggleAccordion(element) {
       const item = element.parentElement;
       item.classList.toggle('active');
-
-      const arrow = element.querySelector('span:last-child');
-      if (item.classList.contains('active')) {
-        arrow.innerText = '▲';
-      } else {
-        arrow.innerText = '▼';
-      }
     }
   </script>
+
 </body>
 </html>
