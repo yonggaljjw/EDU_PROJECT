@@ -3,6 +3,15 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from .models import db, User, UserProfile, JobsInfo, AiResult, EmploymentFull  # ✅ JobsInfo 추가
 import logging
 import random
+import os
+import time
+import traceback
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import openai
+from elasticsearch import Elasticsearch
+
+
+
 main_bp = Blueprint('main', __name__)
 
 
@@ -184,13 +193,6 @@ def recommend():
 
 
 
-import logging
-import os
-import time
-import traceback
-from concurrent.futures import ThreadPoolExecutor, as_completed
-
-import openai
 
 # 로깅 설정
 logging.basicConfig(level=logging.DEBUG)
@@ -200,6 +202,39 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 # GPT 요청 함수 (질문별로 맞춤화된 프롬프트)
+
+# Elasticsearch 클라이언트
+es = Elasticsearch([os.getenv("ELASTICSEARCH_URL")])
+index_name = "ncs_skills"
+
+def get_ncs_rag_context(query_text, top_k=5):
+    # 1. 쿼리 임베딩 생성
+    embedding = openai.Embedding.create(
+        input=query_text,
+        model="text-embedding-3-small")['data'][0]['embedding']
+
+    # 2. ES 벡터 유사도 검색
+    knn_query = {
+        "field": "total_vector",
+        "query_vector": embedding,
+        "k": top_k,
+        "num_candidates": 100
+    }
+
+    response = es.search(
+        index=index_name,
+        knn=knn_query,
+        source=["compUnitName", "skills", "knowledge", "performance_criteria"]
+    )
+    docs = [hit["_source"] for hit in response["hits"]["hits"]]
+
+    # 3. 프롬프트용 텍스트로 정리
+    context = "\n\n".join([
+        f"직무명: {d.get('compUnitName','')}\n- 기술: {d.get('skills','')}\n- 지식: {d.get('knowledge','')}\n- 수행기준: {d.get('performance_criteria','')}"
+        for d in docs
+    ])
+    return context
+
 def get_gpt_answer(index, question_type, profile, answer):
     base_info = f"""
 당신의 MBTI는 {profile.mbti},
@@ -213,12 +248,28 @@ def get_gpt_answer(index, question_type, profile, answer):
 기타 활동 이력은 {profile.activities} 입니다.
 """
 
+    # RAG: NCS 직무능력 유사 문서 검색
+    rag_context = get_ncs_rag_context(answer if question_type == "요약" else profile.target_career)
+
+    print(rag_context)
     if question_type == "요약":
-        prompt = base_info + f"\n\n추가 질문:\n{answer}\n\n위 정보를 요약하고, 진로 방향과 관련 직업을 간결하게 정리해줘."
+        prompt = (
+            base_info
+            + f"\n\n[유사 직무능력 정보]\n{rag_context}"
+            + f"\n\n추가 질문:\n{answer}\n\n위 정보를 요약하고, 진로 방향과 관련 직업을 간결하게 정리해줘."
+        )
     elif question_type == "진로":
-        prompt = base_info + "\n\n희망 진로에 필요한 자격증, 준비 전략 등을 구체적으로 제시해줘."
+        prompt = (
+            base_info
+            + f"\n\n[유사 직무능력 정보]\n{rag_context}"
+            + "\n\n희망 진로에 필요한 자격증, 준비 전략 등을 구체적으로 제시해줘."
+        )
     elif question_type == "학과":
-        prompt = base_info + "\n\n성적과 목표를 기반으로 진학 가능한 학과와 학교를 추천해줘."
+        prompt = (
+            base_info
+            + f"\n\n[유사 직무능력 정보]\n{rag_context}"
+            + "\n\n성적과 목표를 기반으로 진학 가능한 학과와 학교를 추천해줘."
+        )
     else:
         prompt = "[잘못된 질문 유형]"
 
@@ -226,11 +277,11 @@ def get_gpt_answer(index, question_type, profile, answer):
         response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "너는 진로 전문 상담가야."},
+                {"role": "system", "content": "너는 진로 전문 상담가야. 아래의 유사 직무능력 정보도 반드시 참고해서 답변해."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7,
-            max_tokens=500
+            max_tokens=800
         )
         return response['choices'][0]['message']['content']
     except Exception as e:
