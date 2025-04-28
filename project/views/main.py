@@ -1,4 +1,4 @@
-from flask import Blueprint,current_app, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint,current_app, render_template, request, redirect, url_for, flash, jsonify, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from .models import db, User, UserProfile, JobsInfo, AiResult, EmploymentFull  # ✅ JobsInfo 추가
 import logging
@@ -9,6 +9,8 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import openai
 from elasticsearch import Elasticsearch
+from views.character_prompt import build_prompt # 캐릭터챗 프롬프트 불러오기
+from views.models import db, CharacterChatHistory # 캐릭터 챗 대화 저장용
 
 
 
@@ -494,3 +496,70 @@ def vision_plan():
 
     return render_template('vision_plan.html')
 
+
+# 캐릭터 챗
+
+# 캐릭터 선택 화면
+@main_bp.route('/chat/character/select')
+def select_character():
+    return render_template('character_select.html')  # 캐릭터 선택하는 페이지
+
+# 캐릭터 채팅 화면 열기
+@main_bp.route('/chat/character/chat', methods=['GET'])
+def character_chat():
+    character_name = request.args.get('character')
+    return render_template('character_chat.html', character_name=character_name)
+
+# 캐릭터와 메시지 질문/답변/DB저장 API
+@main_bp.route('/chat/character/send_message', methods=['POST'])
+def send_message():
+    data = request.get_json()
+    character_name = data.get('character')
+    question = data.get('question')
+    retrieved_conversations = data.get('retrieved_conversations', [])
+
+    # ✅ 세션에서 user_id 가져오기
+    user_id = session.get('user_id')  # 로그인한 사용자 ID
+    if not user_id:
+        return jsonify({"error": "로그인이 필요합니다."}), 401
+
+    try:
+        openai.api_key = os.getenv("OPENAI_API_KEY")
+
+        prompt = build_prompt(character_name, question, retrieved_conversations)
+
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "너는 학생 고민 상담 전문 캐릭터야."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=800
+        )
+
+        character_response = response['choices'][0]['message']['content']
+
+        # ✅ 대화 저장 (user_id 포함)
+        chat_log = CharacterChatHistory(
+            user_id=user_id,  # 🔥 여기 반드시 user_id 넣어야 해
+            character_name=character_name,
+            user_message=question,
+            character_response=character_response
+        )
+        db.session.add(chat_log)
+        db.session.commit()
+
+        return jsonify({"response": character_response})
+
+    except Exception as e:
+        logging.error("❌ 캐릭터 메시지 송수신 실패: %s", traceback.format_exc())
+        return jsonify({"error": "서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."}), 500
+
+
+# 캐릭터 대화 히스토리 조회 화면
+@main_bp.route('/chat/character/history/<character_name>', methods=['GET'])
+def character_chat_history(character_name):
+    # 최근 50개까지만 조회 (너가 원하는 만큼 조정 가능)
+    histories = CharacterChatHistory.query.filter_by(character_name=character_name).order_by(CharacterChatHistory.timestamp.asc()).limit(50).all()
+    return render_template('character_history.html', character_name=character_name, histories=histories)

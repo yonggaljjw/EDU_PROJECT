@@ -144,3 +144,14 @@ class EmploymentFull(db.Model):
     advanced_male = db.Column(db.Integer)
     advanced_female = db.Column(db.Integer)
 
+class CharacterChatHistory(db.Model):
+    __tablename__ = 'character_chat_history'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # ✅ users.id 참조
+    character_name = db.Column(db.String(50), nullable=False)
+    user_message = db.Column(db.Text, nullable=False)
+    character_response = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref=db.backref('chat_histories', lazy=True))

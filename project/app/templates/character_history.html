@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ character_name }}와의 대화 기록</title>
+    <link rel="stylesheet" href="/static/character_chat.css">
+</head>
+
+<body>
+
+    <div class="chat-container">
+        <h1>{{ character_name }}와의 대화 기록</h1>
+
+        <div class="chat-box">
+            {% for chat in histories %}
+            <div class="chat-message user">
+                <div class="bubble user-bubble">{{ chat.user_message }}</div>
+            </div>
+            <div class="chat-message character">
+                <div class="bubble character-bubble">{{ chat.character_response }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="back-button">
+            <a href="/chat/character/select">← 캐릭터 선택으로 돌아가기</a>
+        </div>
+    </div>
+
+</body>
+
+</html>

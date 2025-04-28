@@ -1,17 +1,44 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 
 <head>
+    <meta charset="UTF-8">
     <title>캐릭터 선택</title>
+    <link rel="stylesheet" href="/static/character_select.css">
 </head>
 
 <body>
-    <h1>상담할 캐릭터를 선택하세요</h1>
-    <ul>
-        {% for character in characters %}
-        <li><a href="{{ url_for('main.start_chat_with_character') }}?character={{ character }}">{{ character }}</a></li>
-        {% endfor %}
-    </ul>
+
+    <div class="select-container">
+        <h1>상담할 캐릭터를 선택하세요</h1>
+
+        <div class="character-grid">
+            <div class="character-card" onclick="selectCharacter('하늘')">
+                <img src="/static/profiles/하늘.png" alt="하늘">
+                <h2>하늘</h2>
+                <p>17세 예술고등학교 2학년<br>밝고 긍정적인 에너지!</p>
+            </div>
+
+            <div class="character-card" onclick="selectCharacter('지한')">
+                <img src="/static/profiles/지한.png" alt="지한">
+                <h2>지한</h2>
+                <p>22세 경영학과 대학생<br>차분하고 든든한 선배</p>
+            </div>
+
+            <div class="character-card" onclick="selectCharacter('이솔')">
+                <img src="/static/profiles/이솔.png" alt="이솔">
+                <h2>이솔</h2>
+                <p>26세 AI 개발자<br>조용하고 부드러운 직장인</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectCharacter(name) {
+            window.location.href = `/chat/character/chat?character=${encodeURIComponent(name)}`;
+        }
+    </script>
+
 </body>
 
 </html>
