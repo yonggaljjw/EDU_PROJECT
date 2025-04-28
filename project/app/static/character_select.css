@@ -1,0 +1,55 @@
+/* static/character_chat.css (추가 사용 가능) */
+
+.chat-container {
+    max-width: 600px;
+    margin: 30px auto;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.chat-box {
+    max-height: 600px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.chat-message {
+    display: flex;
+    margin-bottom: 15px;
+}
+
+.chat-message.user {
+    justify-content: flex-end;
+}
+
+.chat-message.character {
+    justify-content: flex-start;
+}
+
+.bubble {
+    padding: 10px 15px;
+    border-radius: 20px;
+    max-width: 70%;
+    word-break: break-word;
+}
+
+.user-bubble {
+    background: #daf8e3;
+}
+
+.character-bubble {
+    background: #f0f0f0;
+}
+
+.back-button {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.back-button a {
+    text-decoration: none;
+    color: #4caf50;
+    font-weight: bold;
+}

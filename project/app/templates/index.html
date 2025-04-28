@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,7 +23,7 @@
 
     header {
       width: 100%;
-      padding: 20px 40px;
+      padding: 15px 40px;
       background: linear-gradient(135deg, #7e57c2, #5c6bc0);
       display: flex;
       justify-content: space-between;
@@ -30,136 +31,158 @@
       position: sticky;
       top: 0;
       z-index: 1000;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .logo a {
-      font-size: 1.8rem;
+      font-size: 1.5rem;
       font-weight: bold;
       color: white;
       text-decoration: none;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
     }
 
     nav {
       display: flex;
-      gap: 30px;
+      gap: 20px;
       align-items: center;
     }
 
     nav a {
       text-decoration: none;
       color: white;
-      font-size: 1rem;
-      padding-bottom: 5px;
+      font-size: 0.95rem;
+      padding: 5px 10px;
       position: relative;
       transition: all 0.3s;
-    }
-
-    nav a::after {
-      content: '';
-      position: absolute;
-      width: 0%;
-      height: 2px;
-      bottom: 0;
-      left: 0;
-      background-color: white;
-      transition: all 0.3s ease-in-out;
     }
 
     nav a:hover {
       color: #ffe082;
     }
 
-    nav a:hover::after {
-      width: 100%;
-    }
-
     .main-banner {
       text-align: center;
-      padding: 50px 20px;
+      padding: 40px 20px 20px;
     }
 
     .main-banner h1 {
-      font-size: 2.5rem;
-      color: #4a148c;
-      margin-bottom: 10px;
+      font-size: 2.2rem;
+      color: #673ab7;
+      margin-bottom: 15px;
+      position: relative;
+      display: inline-block;
+    }
+
+    .main-banner h1::before {
+      content: '';
+      position: absolute;
+      left: -30px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 10px;
+      height: 80%;
+      background-color: #673ab7;
+      border-radius: 6px;
     }
 
     .main-banner p {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       color: #555;
+      margin-bottom: 20px;
     }
 
+    /* 카드 섹션 수정 - 첫 번째 이미지 스타일에 맞게 */
     .card-section {
       display: flex;
-      flex-wrap: wrap;
       justify-content: center;
       gap: 30px;
-      margin: 50px 20px;
+      width: 100%;
+      max-width: 1280px;
+      padding: 0 30px;
+      margin: 30px auto;
     }
 
     .card {
       background: white;
-      width: 280px;
-      padding: 30px 20px;
-      border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      text-align: center;
-      transition: 0.3s;
-    }
-
-    .card:hover {
-      transform: translateY(-5px);
+      width: 100%;
+      max-width: 400px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      position: relative;
+      min-height: 320px;
     }
 
     .card h3 {
-      font-size: 1.2rem;
-      color: #512da8;
-      margin-bottom: 15px;
+      font-size: 1.3rem;
+      color: #333;
+      margin-bottom: 10px;
     }
 
     .card p {
       font-size: 1rem;
       color: #555;
+      line-height: 1.5;
       margin-bottom: 20px;
+    }
+
+    .card-img {
+      position: absolute;
+      right: 30px;
+      bottom: 65px;
+      text-align: right;
+    }
+
+    .card-img img {
+      height: 140px;
+      width: auto;
     }
 
     .card a {
       display: inline-block;
-      padding: 10px 20px;
+      padding: 12px 24px;
       background-color: #7e57c2;
       color: white;
       border-radius: 8px;
       text-decoration: none;
-      font-size: 0.95rem;
+      font-size: 1rem;
+      position: absolute;
+      bottom: 30px;
+      right: 30px;
       transition: 0.3s;
+      z-index: 2;
     }
 
     .card a:hover {
       background-color: #5e35b1;
     }
 
+    /* 정보 섹션 - 상단 카드와 너비 일치 */
     .info-section {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 30px;
-      margin: 40px 20px 60px;
+      width: 100%;
+      max-width: 1280px;
+      margin: 30px auto;
+      padding: 0 30px;
     }
 
     .info-box {
       background: white;
-      flex: 1 1 400px;
-      max-width: 500px;
-      padding: 30px 25px;
+      flex: 1;
+      min-width: 400px;
+      max-width: 625px;
+      padding: 30px;
       border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
     .info-box h3 {
       color: #4a148c;
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       margin-bottom: 15px;
     }
 
@@ -170,9 +193,19 @@
     }
 
     .info-box li {
-      font-size: 1rem;
+      font-size: 0.95rem;
       color: #555;
       margin-bottom: 8px;
+    }
+
+    .info-box li span.trend-up {
+      color: #4caf50;
+      font-weight: bold;
+    }
+
+    .info-box li span.trend-down {
+      color: #f44336;
+      font-weight: bold;
     }
 
     footer {
@@ -185,73 +218,97 @@
     }
 
     @media (max-width: 768px) {
-      .card-section, .info-section {
+
+      .card-section,
+      .info-section {
         flex-direction: column;
         align-items: center;
+      }
+
+      .card {
+        max-width: 100%;
+        margin-bottom: 20px;
       }
     }
   </style>
 </head>
+
 <body>
 
-<header>
-  <div class="logo">
-    <a href="/">AI 진로설계</a>
-  </div>
-  <nav>
-    <a href="/">홈</a>
-    <a href="/profile">프로필</a>
-    <a href="/recommend">진로 추천받기</a>
-    <a href="/vision/plan">목표 설계</a>
-    <a href="/history">히스토리</a>
-    <a href="/logout">로그아웃</a>
-  </nav>
-</header>
+  <header>
+    <div class="logo">
+      <a href="/">AI 진로설계</a>
+    </div>
+    <nav>
+      <a href="/">홈</a>
+      <a href="/profile">프로필</a>
+      <a href="/recommend">진로 추천받기</a>
+      <a href="/vision/plan">목표 설계</a>
+      <a href="/history">히스토리</a>
+      <a href="/logout">로그아웃</a>
+    </nav>
+  </header>
 
-<section class="main-banner">
-  <h1>AI 진로 설계 시스템 OPEN!</h1>
-  <p>프로필, 생활기록부, 상담 챗봇 기반으로 나에게 맞는 진로와 학과를 찾아보세요</p>
-</section>
+  <section class="main-banner">
+    <h1>AI 진로 설계 시스템 OPEN!</h1>
+    <p>프로필, 생활기록부, 상담 챗봇 기반으로 나에게 맞는 진로와 학과를 찾아보세요</p>
+  </section>
 
-<div class="card-section">
-  <div class="card">
-    <h3>프로필 기반 진로 추천</h3>
-    <p>기본 프로필만으로 AI가 진로 및 학과를 추천합니다.</p>
-    <a href="/recommend/ai">바로가기</a>
-  </div>
-  <div class="card">
-    <h3>생활기록부 기반 진로 추천</h3>
-    <p>생활기록부(PDF)를 기반으로 AI가 진로 및 학과를 추천합니다.</p>
-    <a href="/recommend/pdf">바로가기</a>
-  </div>
-  <div class="card">
-    <h3>5Y컨설팅</h3>
-    <p>희망 직업을 위한 5년을 컨설팅해드립니다.</p>
-    <a href="/vision/plan">바로가기</a>
-  </div>
-</div>
+  <!-- 카드 섹션 변경 - 첫 번째 이미지와 두 번째 이미지 스타일 반영 -->
+  <div class="card-section">
+    <div class="card">
+      <h3>프로필 기반 AI 진로 추천</h3>
+      <p>기본 프로필을 바탕으로, AI 추가질문을 통해 진로와 대학 및 학과 까지 추천해드립니다.</p>
+      <div class="card-img">
+        <img src="{{ url_for('static', filename='img/ai_recommend.png') }}" alt="AI 진로 추천 아이콘">
+      </div>
+      <a href="/recommend/ai">>> 추천 시작하기</a>
+    </div>
 
-<div class="info-section">
-  <div class="info-box">
-    <h3>전국 학교/학과 취업률</h3>
-    <ul>
-      {% for s in random_schools %}
+    <div class="card">
+      <h3>5Y컨설팅</h3>
+      <p>희망 직업을 위한 5년을 컨설팅해드립니다.</p>
+      <div class="card-img">
+        <img src="{{ url_for('static', filename='img/consulting.png') }}" alt="5Y컨설팅 아이콘">
+      </div>
+      <a href="/vision/plan">>> 컨설팅 시작하기</a>
+    </div>
+
+    <div class="card">
+      <h3>진로 상담 챗봇</h3>
+      <p>원하는 캐릭터로 진로상담을 진행해 보세요!</p>
+      <div class="card-img">
+        <img src="{{ url_for('static', filename='img/jihan.png') }}" alt="진로 상담 챗봇 아이콘">
+      </div>
+      <a href="/character_select">>> 상담 시작하기</a>
+    </div>
+  </div>
+
+  <div class="info-section">
+    <div class="info-box">
+      <h3>전국 학교/학과 취업률</h3>
+      <ul>
+        {% for s in random_schools %}
         <li>{{ s.school_name }} {{ s.dept_name }} – 취업률 {{ s.emp_rate_total }}%</li>
-      {% endfor %}
-    </ul>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="info-box">
+      <h3>인기 직업 및 연봉 정보</h3>
+      <ul>
+        {% for j in random_jobs %}
+        <li>{{ j.job }} – 평균 연봉 {{ j.salery }} {% if j.trend == 'up' %}<span class="trend-up">↑</span>{% elif j.trend ==
+          'down' %}<span class="trend-down">↓</span>{% endif %}</li>
+        {% endfor %}
+      </ul>
+    </div>
   </div>
 
-  <div class="info-box">
-    <h3>인기 직업 및 연봉 정보</h3>
-    <ul>
-      {% for j in random_jobs %}
-        <li>{{ j.job }} – 평균 연봉 {{ j.salery }}</li>
-      {% endfor %}
-    </ul>
-  </div>
-</div>
-
-
+  <footer>
+    © 2025 AI 진로설계 시스템. All rights reserved.
+  </footer>
 
 </body>
+
 </html>
