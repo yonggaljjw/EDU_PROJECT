@@ -498,6 +498,12 @@ def vision_plan():
 
 
 # 캐릭터 챗
+# 💬 캐릭터 코드 ↔ 한글 이름 매핑
+character_name_mapping = {
+    "hanul": "하늘",
+    "jihan": "지한",
+    "isol": "이솔"
+}
 
 # 캐릭터 선택 화면
 @main_bp.route('/chat/character/select')
@@ -507,26 +513,26 @@ def select_character():
 # 캐릭터 채팅 화면 열기
 @main_bp.route('/chat/character/chat', methods=['GET'])
 def character_chat():
-    character_name = request.args.get('character')
-    return render_template('character_chat.html', character_name=character_name)
+    character_code = request.args.get('character')  # 이제 'hanul', 'jihan' 같은 코드가 옴
+    character_display_name = character_name_mapping.get(character_code, "알 수 없는 캐릭터")
+    return render_template('character_chat.html', character_code=character_code, character_display_name=character_display_name)
 
-# 캐릭터와 메시지 질문/답변/DB저장 API
+# 캐릭터 메시지 보내는 API
 @main_bp.route('/chat/character/send_message', methods=['POST'])
 def send_message():
     data = request.get_json()
-    character_name = data.get('character')
+    character_code = data.get('character')  # 'hanul', 'jihan', 'isol'
     question = data.get('question')
     retrieved_conversations = data.get('retrieved_conversations', [])
 
-    # ✅ 세션에서 user_id 가져오기
-    user_id = session.get('user_id')  # 로그인한 사용자 ID
+    user_id = session.get('user_id')
     if not user_id:
         return jsonify({"error": "로그인이 필요합니다."}), 401
 
     try:
         openai.api_key = os.getenv("OPENAI_API_KEY")
 
-        prompt = build_prompt(character_name, question, retrieved_conversations)
+        prompt = build_prompt(character_code, question, retrieved_conversations)
 
         response = openai.ChatCompletion.create(
             model="gpt-4",
@@ -540,10 +546,10 @@ def send_message():
 
         character_response = response['choices'][0]['message']['content']
 
-        # ✅ 대화 저장 (user_id 포함)
+        # ✅ user_id, character_code를 저장
         chat_log = CharacterChatHistory(
-            user_id=user_id,  # 🔥 여기 반드시 user_id 넣어야 해
-            character_name=character_name,
+            user_id=user_id,
+            character_name=character_code,  # hanul, jihan, isol 형태로 저장
             user_message=question,
             character_response=character_response
         )

@@ -53,7 +53,7 @@ def generate_character_response(character_name, student_question):
     캐릭터 설정을 반영해 답변 생성
 
     Args:
-        character_name (str): "하늘", "지한", "이솔" 중 하나
+        character_name (str): "hanul", "jihan", "isol" 중 하나
         student_question (str): 학생 질문
 
     Returns:
