@@ -3,35 +3,305 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>캐릭터 선택</title>
-    <link rel="stylesheet" href="/static/character_select.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>진로 상담 캐릭터 선택</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Pretendard', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0f7fa, #e1bee7);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            width: 100%;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #7e57c2, #5c6bc0);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo a {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: white;
+            font-size: 0.95rem;
+            padding: 5px 10px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        nav a:hover {
+            color: #ffe082;
+        }
+
+        .main-banner {
+            text-align: center;
+            padding: 30px 20px 10px;
+        }
+
+        .main-banner h1 {
+            font-size: 2rem;
+            color: #673ab7;
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .main-banner h1::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 80%;
+            background-color: #673ab7;
+            border-radius: 6px;
+        }
+
+        .main-banner p {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .select-container {
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .character-grid {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .character-card {
+            background: white;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            position: relative;
+            min-height: 450px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .character-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .character-card img {
+            width: 180px;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            border: 5px solid #f3e5f5;
+        }
+
+        .character-card h2 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .character-card p {
+            font-size: 1rem;
+            color: #555;
+            line-height: 1.5;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .character-info {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+
+        .info-label {
+            width: 80px;
+            font-weight: bold;
+            color: #673ab7;
+        }
+
+        .info-value {
+            flex: 1;
+            color: #555;
+        }
+
+        .start-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #7e57c2;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 1rem;
+            margin-top: auto;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .start-button:hover {
+            background-color: #5e35b1;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            background-color: #f3e5f5;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .character-grid {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .character-card {
+                max-width: 100%;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
 </head>
 
 <body>
+    <header>
+        <div class="logo">
+            <a href="/">AI 진로설계</a>
+        </div>
+        <nav>
+            <a href="/">홈</a>
+            <a href="/profile">프로필</a>
+            <a href="/recommend">진로 추천받기</a>
+            <a href="/vision/plan">목표 설계</a>
+            <a href="/history">히스토리</a>
+            <a href="/logout">로그아웃</a>
+        </nav>
+    </header>
+
+    <section class="main-banner">
+        <h1>고민, 1:1 대화로 편하게 나누어 보세요!</h1>
+        <p>상담할 캐릭터를 선택하면 진로 대화를 시작합니다</p>
+    </section>
 
     <div class="select-container">
-        <h1>상담할 캐릭터를 선택하세요</h1>
-
         <div class="character-grid">
             <div class="character-card" onclick="selectCharacter('하늘')">
-                <img src="/static/profiles/하늘.png" alt="하늘">
-                <h2>하늘</h2>
-                <p>17세 예술고등학교 2학년<br>밝고 긍정적인 에너지!</p>
+                <img src="/static/select/hanul.png" alt="하늘">
+                <h2># 하늘</h2>
+                <div class="character-info">
+                    <div class="info-row">
+                        <div class="info-label">학교</div>
+                        <div class="info-value">성일예고 2학년</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">성격</div>
+                        <div class="info-value">에너지 넘치고, 밝고 긍정적</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">MBTI</div>
+                        <div class="info-value">ENFP</div>
+                    </div>
+                </div>
+                <button class="start-button">Start →</button>
             </div>
 
             <div class="character-card" onclick="selectCharacter('지한')">
-                <img src="/static/profiles/지한.png" alt="지한">
-                <h2>지한</h2>
-                <p>22세 경영학과 대학생<br>차분하고 든든한 선배</p>
+                <img src="/static/select/jihan.png" alt="지한">
+                <h2># 지한</h2>
+                <div class="character-info">
+                    <div class="info-row">
+                        <div class="info-label">전공</div>
+                        <div class="info-value">경영학과 3학년</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">성격</div>
+                        <div class="info-value">차분하고 현실적인 조언자</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">MBTI</div>
+                        <div class="info-value">ISTJ</div>
+                    </div>
+                </div>
+                <button class="start-button">Start →</button>
             </div>
 
             <div class="character-card" onclick="selectCharacter('이솔')">
-                <img src="/static/profiles/이솔.png" alt="이솔">
-                <h2>이솔</h2>
-                <p>26세 AI 개발자<br>조용하고 부드러운 직장인</p>
+                <img src="/static/select/isol.png" alt="이솔">
+                <h2># 이솔</h2>
+                <div class="character-info">
+                    <div class="info-row">
+                        <div class="info-label">직업</div>
+                        <div class="info-value">AI 개발자</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">성격</div>
+                        <div class="info-value">조용하고 부드러운 직장인</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">MBTI</div>
+                        <div class="info-value">INTP</div>
+                    </div>
+                </div>
+                <button class="start-button">Start →</button>
             </div>
         </div>
     </div>
+
+    <footer>
+        © 2025 AI 진로설계 시스템. All rights reserved.
+    </footer>
 
     <script>
         function selectCharacter(name) {
