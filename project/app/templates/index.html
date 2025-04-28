@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>진로 설계 - 메인페이지</title>
+  <title>AI 진로 설계 메인페이지</title>
   <link href="https://fonts.googleapis.com/css2?family=Pretendard&display=swap" rel="stylesheet">
   <style>
     * {
@@ -21,232 +21,237 @@
     }
 
     header {
-  padding: 20px 60px;
-  background: linear-gradient(135deg, #7e57c2, #5c6bc0);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
+      width: 100%;
+      padding: 20px 40px;
+      background: linear-gradient(135deg, #7e57c2, #5c6bc0);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
 
-.logo {
-  font-size: 2rem;
-  font-weight: bold;
-  color: white;
-  letter-spacing: 1px;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-}
+    .logo a {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: white;
+      text-decoration: none;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    }
 
-nav a {
-  margin-left: 30px;
-  text-decoration: none;
-  color: white;
-  font-size: 1.1rem;
-  position: relative;
-  padding-bottom: 5px;
-  transition: all 0.3s;
-}
+    nav {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+    }
 
-nav a::after {
-  content: '';
-  position: absolute;
-  width: 0%;
-  height: 2px;
-  bottom: 0;
-  left: 0;
-  background-color: white;
-  transition: all 0.3s ease-in-out;
-}
+    nav a {
+      text-decoration: none;
+      color: white;
+      font-size: 1rem;
+      padding-bottom: 5px;
+      position: relative;
+      transition: all 0.3s;
+    }
 
-nav a:hover {
-  color: #ffe082;
-}
+    nav a::after {
+      content: '';
+      position: absolute;
+      width: 0%;
+      height: 2px;
+      bottom: 0;
+      left: 0;
+      background-color: white;
+      transition: all 0.3s ease-in-out;
+    }
 
-nav a:hover::after {
-  width: 100%;
-}
+    nav a:hover {
+      color: #ffe082;
+    }
 
-    .hero {
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    .main-banner {
       text-align: center;
-      padding: 60px 20px;
+      padding: 50px 20px;
     }
 
-    .hero h1 {
-      font-size: 3rem;
+    .main-banner h1 {
+      font-size: 2.5rem;
       color: #4a148c;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
 
-    .hero p {
+    .main-banner p {
       font-size: 1.2rem;
       color: #555;
-      max-width: 700px;
-      margin: 0 auto 40px;
     }
 
-    .hero .cta-button {
-      padding: 15px 30px;
-      background-color: #7e57c2;
-      color: white;
-      font-size: 1.1rem;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    .hero .cta-button:hover {
-      background-color: #5e35b1;
-    }
-
-    .content-wrapper {
+    .card-section {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 40px;
-      padding-bottom: 60px;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      margin: 50px 20px;
     }
 
-    .info-card {
-      background-color: #ffffffdd;
-      padding: 30px 40px;
+    .card {
+      background: white;
+      width: 280px;
+      padding: 30px 20px;
       border-radius: 15px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-      max-width: 800px;
-      width: 90%;
-      text-align: left;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: 0.3s;
     }
 
-    .info-card h3 {
-      font-size: 1.5rem;
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card h3 {
+      font-size: 1.2rem;
       color: #512da8;
       margin-bottom: 15px;
     }
 
-    .info-card p, .info-card li {
-      font-size: 1.1rem;
-      color: #444;
-      line-height: 1.7;
+    .card p {
+      font-size: 1rem;
+      color: #555;
+      margin-bottom: 20px;
     }
 
-    .salary {
-      font-weight: bold;
-      font-size: 1.15rem;
-      color: #2e7d32;
-      margin-top: 15px;
+    .card a {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #7e57c2;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: 0.3s;
+    }
+
+    .card a:hover {
+      background-color: #5e35b1;
+    }
+
+    .info-section {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      margin: 40px 20px 60px;
+    }
+
+    .info-box {
+      background: white;
+      flex: 1 1 400px;
+      max-width: 500px;
+      padding: 30px 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .info-box h3 {
+      color: #4a148c;
+      font-size: 1.4rem;
+      margin-bottom: 15px;
+    }
+
+    .info-box ul {
+      margin-top: 10px;
+      list-style: disc;
+      padding-left: 20px;
+    }
+
+    .info-box li {
+      font-size: 1rem;
+      color: #555;
+      margin-bottom: 8px;
     }
 
     footer {
+      margin-top: auto;
       padding: 20px;
-      text-align: center;
       background-color: #f3e5f5;
-      color: #666;
+      text-align: center;
       font-size: 0.9rem;
+      color: #666;
     }
 
     @media (max-width: 768px) {
-      .hero h1 {
-        font-size: 2rem;
-      }
-
-      .info-card {
-        padding: 20px;
-      }
-
-      .info-card h3 {
-        font-size: 1.3rem;
-      }
-
-      .info-card p {
-        font-size: 1rem;
+      .card-section, .info-section {
+        flex-direction: column;
+        align-items: center;
       }
     }
   </style>
 </head>
 <body>
-  {% include "_navbar.html" %}
 
-  <section class="hero">
-    <h1>나에게 꼭 맞는 진로와 학과를 찾아보세요</h1>
-    <button class="cta-button" onclick="window.location.href='/recommend'">진로 추천 시작하기</button>
-  </section>
+<header>
+  <div class="logo">
+    <a href="/">AI 진로설계</a>
+  </div>
+  <nav>
+    <a href="/">홈</a>
+    <a href="/profile">프로필</a>
+    <a href="/recommend">진로 추천받기</a>
+    <a href="/vision/plan">목표 설계</a>
+    <a href="/history">히스토리</a>
+    <a href="/logout">로그아웃</a>
+  </nav>
+</header>
 
-  <div class="content-wrapper">
-    {% if profile %}
-      {% set job_map = {
-        'INTJ': '전략 컨설턴트, 데이터 사이언티스트, 개발자',
-        'INTP': '연구원, 시스템 아키텍트, 이론 과학자',
-        'ENTJ': 'CEO, 기획자, 변호사',
-        'ENTP': '기술 창업가, 마케팅 전략가, 프로덕트 매니저',
-        'INFJ': '심리상담가, 작가, UX 디자이너',
-        'INFP': '소설가, 예술가, 비영리단체 활동가',
-        'ENFJ': '교사, HR 관리자, 사회복지사',
-        'ENFP': '브랜드 마케터, 콘텐츠 크리에이터, 여행 작가',
-        'ISTJ': '회계사, 법률 전문가, 행정 공무원',
-        'ISFJ': '간호사, 도서관 사서, 초등교사',
-        'ESTJ': '군 간부, 프로젝트 매니저, 운영 관리자',
-        'ESFJ': '의료 상담사, 고객 서비스 관리자, 보건 교사',
-        'ISTP': '기계 엔지니어, 정비사, 파일럿',
-        'ISFP': '패션 디자이너, 사진작가, 플로리스트',
-        'ESTP': '영업 매니저, 응급 구조사, 스포츠 코치',
-        'ESFP': 'MC, 배우, 이벤트 플래너'
-      } %}
-      <div class="info-card">
-        <h3>🌟 {{ profile.mbti }} 유형은 다음과 같은 직업에 많이 종사해요</h3>
-        <p>{{ job_map[profile.mbti] }}</p>
-      </div>
+<section class="main-banner">
+  <h1>AI 진로 설계 시스템 OPEN!</h1>
+  <p>프로필, 생활기록부, 상담 챗봇 기반으로 나에게 맞는 진로와 학과를 찾아보세요</p>
+</section>
 
-      {% if job_detail %}
-      <div class="info-card">
-        <h3>🔍 {{ session.get("username") }} 님이 관심 있는 <strong>{{ profile.target_career }}</strong>의 주요 정보</h3>
-        <div id="job-summary" data-summary="{{ job_detail.summary | replace('\n', ' ') }}"></div>
-        {% if job_detail.salery %}
-          <p class="salary">💰 평균 연봉: {{ job_detail.salery }}</p>
-        {% else %}
-          <p class="salary">💰 평균 연봉 정보 없음</p>
-        {% endif %}
-      </div>
-      {% endif %}
+<div class="card-section">
+  <div class="card">
+    <h3>프로필 기반 진로 추천</h3>
+    <p>기본 프로필만으로 AI가 진로 및 학과를 추천합니다.</p>
+    <a href="/recommend/ai">바로가기</a>
+  </div>
+  <div class="card">
+    <h3>생활기록부 기반 진로 추천</h3>
+    <p>생활기록부(PDF)를 기반으로 AI가 진로 및 학과를 추천합니다.</p>
+    <a href="/recommend/pdf">바로가기</a>
+  </div>
+  <div class="card">
+    <h3>5Y컨설팅</h3>
+    <p>희망 직업을 위한 5년을 컨설팅해드립니다.</p>
+    <a href="/vision/plan">바로가기</a>
+  </div>
+</div>
 
-    {% else %}
-      <!-- 로그인하지 않은 사용자 전용 섹션 -->
-      <div class="info-card">
-        <h3>🎓 전국 학교/학과 취업률 TOP 3</h3>
-        <ul>
-          {% for s in random_schools %}
-            <li><strong>{{ s.school_name }} {{ s.dept_name }}</strong> – 취업률 {{ s.emp_rate_total }}%</li>
-          {% endfor %}
-        </ul>
-      </div>
-
-      <div class="info-card">
-        <h3>💼 인기 직업 및 연봉 정보</h3>
-        <ul>
-          {% for j in random_jobs %}
-            <li><strong>{{ j.job }}</strong> – 평균 연봉 {{ j.salery }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-    {% endif %}
+<div class="info-section">
+  <div class="info-box">
+    <h3>전국 학교/학과 취업률</h3>
+    <ul>
+      {% for s in random_schools %}
+        <li>{{ s.school_name }} {{ s.dept_name }} – 취업률 {{ s.emp_rate_total }}%</li>
+      {% endfor %}
+    </ul>
   </div>
 
-  <script>
-    window.addEventListener('DOMContentLoaded', () => {
-      const container = document.getElementById("job-summary");
-      if (container) {
-        let rawText = container.dataset.summary;
-        rawText = rawText.replace(/[\–\-]\s*/g, '');
-        const sentences = rawText
-          .replace(/([.])\s+(?=[가-힣])/g, "$1|")
-          .split("|")
-          .map(p => p.trim())
-          .filter(p => p.length > 0);
-        container.innerHTML = sentences.map(s => `<p>${s}</p>`).join('');
-      }
-    });
-  </script>
+  <div class="info-box">
+    <h3>인기 직업 및 연봉 정보</h3>
+    <ul>
+      {% for j in random_jobs %}
+        <li>{{ j.job }} – 평균 연봉 {{ j.salery }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+
+
 </body>
 </html>
