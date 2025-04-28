@@ -19,27 +19,26 @@ main_bp = Blueprint('main', __name__)
 def home():
     profile = None
     job_detail = None
-    random_schools = []
-    random_jobs = []
 
+    # 학교/직업 데이터는 로그인 여부와 무관하게 항상 조회
+    all_schools = EmploymentFull.query.all()
+    all_jobs = JobsInfo.query.filter(JobsInfo.salery.isnot(None)).all()
+
+    if len(all_schools) >= 3:
+        random_schools = random.sample(all_schools, 3)
+    else:
+        random_schools = all_schools
+
+    if len(all_jobs) >= 3:
+        random_jobs = random.sample(all_jobs, 3)
+    else:
+        random_jobs = all_jobs
+
+    # 로그인한 경우에만 프로필, 목표 직업 정보 가져오기
     if 'user_id' in session:
         profile = UserProfile.query.filter_by(user_id=session['user_id']).first()
         if profile and profile.target_career:
             job_detail = JobsInfo.query.filter_by(job=profile.target_career).first()
-    else:
-        # 전체 학교/직업 데이터 가져온 후 파이썬에서 랜덤 추출
-        all_schools = EmploymentFull.query.all()
-        all_jobs = JobsInfo.query.filter(JobsInfo.salery.isnot(None)).all()
-
-        if len(all_schools) >= 3:
-            random_schools = random.sample(all_schools, 3)
-        else:
-            random_schools = all_schools
-
-        if len(all_jobs) >= 3:
-            random_jobs = random.sample(all_jobs, 3)
-        else:
-            random_jobs = all_jobs
 
     return render_template(
         'index.html',
@@ -48,6 +47,7 @@ def home():
         random_schools=random_schools,
         random_jobs=random_jobs
     )
+
 
 @main_bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -432,3 +432,65 @@ def recommend_pdf():
             return redirect(url_for('main.recommend_pdf'))
 
     return render_template("recommend_pdf.html")
+
+
+@main_bp.route('/vision/plan', methods=['GET', 'POST'])
+def vision_plan():
+    if 'user_id' not in session:
+        flash("로그인 후 이용해주세요.")
+        return redirect(url_for('main.login'))
+
+    if request.method == 'POST':
+        goal = request.form.get('goal')
+        age = int(request.form.get('age'))
+        year = request.form.get('year')
+        army = request.form.get('army')
+
+        # ✅ 군 복무 반영 로직
+        if age < 18 or '고등학교' in year:
+            army_info = "군 복무는 현재 고려하지 않아도 됩니다."
+        else:
+            if army == "가는 편이다":
+                army_info = "군 복무 예정이므로 복무 기간(약 1년 6개월~2년)은 온라인 학습, 자격증 준비 등에 활용하세요."
+            else:
+                army_info = "군 복무 계획이 없으므로 바로 진학 또는 취업 준비를 하세요."
+
+        # ✅ GPT 프롬프트 구성
+        prompt = f"""
+당신은 학생 맞춤형 커리어 플랜을 현실적으로 설계하는 전문가입니다.
+
+[사용자 정보]
+- 목표: {goal}
+- 현재 나이: {age}세
+- 현재 학년/상태: {year}
+- 군 복무 관련: {army_info}
+
+[요청사항]
+- 학생의 현재 학년과 나이를 반영하여 현실적이고 자연스러운 커리어 플랜을 세우세요.
+- 중학생은 기초 학습 위주, 고등학생은 비교과 활동과 진학 준비를, 대학생 이상은 전공 심화 및 취업 준비를 중심으로 계획하세요.
+- 군 복무가 필요한 경우에는 적절한 시기에 반영하세요.
+- 1년 차부터 5년 차까지 연차별 목표를 자연스러운 문단 설명 형식으로 제시하세요.
+- 전체 분량은 간결하게 7~9문장 이내로 작성하세요.
+"""
+
+        import openai
+        openai.api_key = os.getenv("OPENAI_API_KEY")
+
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": "너는 현실적이고 간결한 문단형 커리어 플랜 전문가야."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7,
+                max_tokens=700
+            )
+            plan_text = response['choices'][0]['message']['content']
+        except Exception as e:
+            plan_text = f"AI 호출 중 오류가 발생했습니다: {str(e)}"
+
+        return render_template('vision_plan_result.html', plan=plan_text, goal=goal)
+
+    return render_template('vision_plan.html')
+
