@@ -3,43 +3,498 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>캐릭터 챗봇</title>
-    <link rel="stylesheet" href="/static/character_chat.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ character_display_name }}와의 대화 | AI 진로설계</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Pretendard', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0f7fa, #e1bee7);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            width: 100%;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #7e57c2, #5c6bc0);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo a {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: white;
+            font-size: 0.95rem;
+            padding: 5px 10px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        nav a:hover {
+            color: #ffe082;
+        }
+
+        .back-btn {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            color: white;
+            font-size: 0.95rem;
+            padding: 5px 10px;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            color: #ffe082;
+        }
+
+        .back-btn svg {
+            margin-right: 5px;
+        }
+
+        .chat-container {
+            max-width: 700px;
+            width: 100%;
+            margin: 20px auto;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 100px);
+        }
+
+        .chat-header {
+            background-color: #9575cd;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-arrow {
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .chat-header h2 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .today-tag {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 3px 12px;
+            font-size: 0.8rem;
+            margin-left: auto;
+        }
+
+        .chat-box {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #f8f8f8;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message-group {
+            display: flex;
+            gap: 10px;
+            max-width: 85%;
+        }
+
+        .message-group.bot {
+            align-self: flex-start;
+        }
+
+        .message-group.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            align-self: flex-end;
+        }
+
+        .message-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .message {
+            padding: 10px 14px;
+            border-radius: 16px;
+            line-height: 1.4;
+            font-size: 0.95rem;
+            position: relative;
+            overflow-wrap: break-word;
+        }
+
+        .message.bot {
+            background-color: white;
+            border-top-left-radius: 0;
+            color: #333;
+        }
+
+        .message.user {
+            background-color: #a28fd0;
+            color: white;
+            border-top-right-radius: 0;
+        }
+
+        .bot-name {
+            font-size: 0.75rem;
+            color: #888;
+            margin-left: 5px;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            background-color: white;
+            border-radius: 16px;
+            border-top-left-radius: 0;
+            width: fit-content;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background-color: #a28fd0;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing-animation 1.5s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing-animation {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .chat-input {
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: white;
+            border-top: 1px solid #eaeaea;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            background-color: #f8f8f8;
+            border-radius: 24px;
+            outline: none;
+            font-size: 0.95rem;
+        }
+
+        #user-input:focus {
+            border-color: #9575cd;
+        }
+
+        #send-btn {
+            background-color: #9575cd;
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+        }
+
+        #send-btn svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 10px 20px;
+            background-color: #f3e5f5;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        @media (max-width: 750px) {
+            .chat-container {
+                margin: 0;
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+
+            header {
+                display: none;
+            }
+
+            footer {
+                display: none;
+            }
+        }
+    </style>
 </head>
 
 <body>
+    <header>
+        <div class="logo">
+            <a href="/">AI 진로설계</a>
+        </div>
+        <nav>
+            <a href="/">홈</a>
+            <a href="/profile">프로필</a>
+            <a href="/history">히스토리</a>
+        </nav>
+    </header>
 
     <div class="chat-container">
         <div class="chat-header">
-            <img src="/static/profiles/{{ character_name }}.png" alt="{{ character_name }}" class="profile-pic">
-            <h2>{{ character_name }}와의 대화</h2>
+            <div class="header-left">
+                <a href="/chat/character/select" class="back-arrow">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5M12 19l-7-7 7-7"></path>
+                    </svg>
+                </a>
+                <img src="/static/profiles/{{ character_code }}.png" alt="{{ character_code }}" class="profile-pic"
+                    onerror="this.onerror=null; this.src='/static/profiles/default.png';">
+                <h2>{{ character_display_name }}</h2>
+            </div>
+            <div class="today-tag">오늘도 힘차게!</div>
         </div>
 
         <div id="chat-box" class="chat-box">
             <!-- 대화 내용이 여기에 추가됨 -->
+            <div class="message-group bot">
+                <img src="/static/profiles/{{ character_code }}.png" alt="{{ character_code }}" class="profile-img"
+                    onerror="this.onerror=null; this.src='/static/profiles/default.png';">
+                <div class="message-container">
+                    <span class="bot-name">{{ character_display_name }}</span>
+                    <div class="message bot">
+                        안녕하세요! 오늘은 어떤 고민이 있으신가요? 편하게 말씀해주세요. 함께 이야기해봐요. 😊
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="chat-input">
             <input type="text" id="user-input" placeholder="메시지를 입력하세요...">
-            <button id="send-btn">전송</button>
+            <button id="send-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 2L11 13" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
         </div>
     </div>
 
+    <footer>
+        © 2025 AI 진로설계 시스템. All rights reserved.
+    </footer>
+
     <script>
-        const characterName = "{{ character_name }}";
+        const characterName = "{{ character_code }}";
+        let isTyping = false;
 
         document.getElementById('send-btn').addEventListener('click', sendMessage);
         document.getElementById('user-input').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') sendMessage();
         });
 
+        function getCurrentTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
+
         function addMessage(role, text) {
             const chatBox = document.getElementById('chat-box');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message ' + role;
-            messageDiv.innerText = text;
-            chatBox.appendChild(messageDiv);
+
+            // 메시지 그룹 생성
+            const messageGroup = document.createElement('div');
+            messageGroup.className = 'message-group ' + role;
+
+            if (role === 'bot') {
+                // 프로필 이미지 추가 (이미지 오류 처리 추가)
+                const profileImg = document.createElement('img');
+                profileImg.src = `/static/profiles/${characterName}.png`;
+                profileImg.alt = characterName;
+                profileImg.className = 'profile-img';
+                profileImg.onerror = function () {
+                    this.onerror = null;
+                    this.src = '/static/profiles/default.png'; // 기본 이미지로 대체
+                };
+                messageGroup.appendChild(profileImg);
+
+                // 메시지 컨테이너
+                const messageContainer = document.createElement('div');
+                messageContainer.className = 'message-container';
+
+                // 이름 추가
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'bot-name';
+                nameSpan.innerText = "{{ character_display_name }}";
+                messageContainer.appendChild(nameSpan);
+
+                // 메시지 내용
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message ' + role;
+                messageDiv.innerText = text;
+                messageContainer.appendChild(messageDiv);
+
+                messageGroup.appendChild(messageContainer);
+            } else {
+                // 메시지 컨테이너
+                const messageContainer = document.createElement('div');
+                messageContainer.className = 'message-container';
+
+                // 메시지 내용
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message ' + role;
+                messageDiv.innerText = text;
+                messageContainer.appendChild(messageDiv);
+
+                messageGroup.appendChild(messageContainer);
+            }
+
+            chatBox.appendChild(messageGroup);
             chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            if (isTyping) return;
+
+            isTyping = true;
+            const chatBox = document.getElementById('chat-box');
+
+            // 타이핑 인디케이터 그룹 생성
+            const typingGroup = document.createElement('div');
+            typingGroup.className = 'message-group bot';
+            typingGroup.id = 'typing-group';
+
+            // 프로필 이미지 추가 (이미지 오류 처리 추가)
+            const profileImg = document.createElement('img');
+            profileImg.src = `/static/profiles/${characterName}.png`;
+            profileImg.alt = characterName;
+            profileImg.className = 'profile-img';
+            profileImg.onerror = function () {
+                this.onerror = null;
+                this.src = '/static/profiles/default.png'; // 기본 이미지로 대체
+            };
+            typingGroup.appendChild(profileImg);
+
+            // 메시지 컨테이너
+            const messageContainer = document.createElement('div');
+            messageContainer.className = 'message-container';
+
+            // 이름 추가
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'bot-name';
+            nameSpan.innerText = characterName;
+            messageContainer.appendChild(nameSpan);
+
+            // 타이핑 인디케이터
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typing-indicator';
+
+            for (let i = 0; i < 3; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'typing-dot';
+                typingDiv.appendChild(dot);
+            }
+
+            messageContainer.appendChild(typingDiv);
+            typingGroup.appendChild(messageContainer);
+
+            chatBox.appendChild(typingGroup);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const typingGroup = document.getElementById('typing-group');
+            if (typingGroup) {
+                typingGroup.remove();
+            }
+            isTyping = false;
         }
 
         async function sendMessage() {
@@ -49,6 +504,9 @@
 
             addMessage('user', text); // 사용자가 입력한 메시지 추가
             input.value = '';
+
+            // 타이핑 인디케이터 표시
+            showTypingIndicator();
 
             try {
                 const response = await fetch('/chat/character/send_message', {
@@ -63,6 +521,9 @@
                     })
                 });
 
+                // 타이핑 인디케이터 숨기기 (응답이 왔을 때)
+                hideTypingIndicator();
+
                 const data = await response.json();
                 if (response.ok) {
                     addMessage('bot', data.response); // 챗봇 답변 추가
@@ -70,6 +531,9 @@
                     addMessage('bot', '⚠️ 다시 시도해 주세요.');
                 }
             } catch (error) {
+                // 타이핑 인디케이터 숨기기 (오류 발생 시)
+                hideTypingIndicator();
+
                 console.error(error);
                 addMessage('bot', '⚠️ 서버에 연결할 수 없습니다.');
             }
