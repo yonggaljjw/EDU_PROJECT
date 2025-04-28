@@ -9,6 +9,7 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import openai
 from elasticsearch import Elasticsearch
+from views.character_prompt import build_prompt
 
 
 
@@ -432,3 +433,45 @@ def recommend_pdf():
             return redirect(url_for('main.recommend_pdf'))
 
     return render_template("recommend_pdf.html")
+
+
+# 캐릭터 챗
+# 캐릭터 선택 화면
+@main_bp.route('/chat/character/select')
+def select_character():
+    return render_template('character_select.html')  # 캐릭터 선택하는 페이지
+
+# 캐릭터 채팅 화면
+@main_bp.route('/chat/character/chat', methods=['GET'])
+def character_chat():
+    character_name = request.args.get('character')
+    return render_template('character_chat.html', character_name=character_name)
+
+# 캐릭터에게 메시지 보내는 API
+@main_bp.route('/chat/character/send_message', methods=['POST'])
+def send_message():
+    data = request.get_json()
+    character_name = data.get('character')
+    question = data.get('question')
+    retrieved_conversations = data.get('retrieved_conversations', [])  # 선택적으로 넘길 수도 있음
+
+    try:
+        openai.api_key = os.getenv("OPENAI_API_KEY")
+
+        prompt = build_prompt(character_name, question, retrieved_conversations)
+
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "너는 학생 고민 상담 전문 캐릭터야."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=800
+        )
+
+        return jsonify({"response": response['choices'][0]['message']['content']})
+
+    except Exception as e:
+        print(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500

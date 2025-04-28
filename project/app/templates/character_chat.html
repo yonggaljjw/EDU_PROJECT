@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>캐릭터 챗봇</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            background: #f5f5f5;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .chat-window {
+            flex: 1;
+            padding: 10px;
+            overflow-y: scroll;
+            background: #fafafa;
+        }
+
+        .chat-message {
+            margin: 10px 0;
+        }
+
+        .user-message {
+            text-align: right;
+            color: blue;
+        }
+
+        .character-message {
+            text-align: left;
+            color: green;
+        }
+
+        .input-box {
+            display: flex;
+            padding: 10px;
+            background: #eee;
+        }
+
+        .input-box input {
+            flex: 1;
+            padding: 10px;
+            font-size: 1em;
+        }
+
+        .input-box button {
+            padding: 10px;
+            font-size: 1em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <img src="{{ url_for('static', filename='img/' + character_name + '.png') }}" alt="프로필">
+        {{ character_name }}와 대화 중
+    </div>
+
+    <div class="chat-window" id="chat-window">
+        <!-- 대화 내용이 여기에 쌓임 -->
+    </div>
+
+    <div class="input-box">
+        <input type="text" id="user-input" placeholder="메시지를 입력하세요..." />
+        <button onclick="sendMessage()">전송</button>
+    </div>
+
+    <script>
+        const characterName = "{{ character_name }}";
+
+        function sendMessage() {
+            const userInput = document.getElementById('user-input');
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            appendMessage('나', message, 'user-message');
+
+            fetch('/chat/character/send_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    character: characterName,
+                    question: message
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    appendMessage(characterName, data.response, 'character-message');
+                })
+                .catch(error => {
+                    console.error('에러 발생:', error);
+                    appendMessage('시스템', '오류가 발생했습니다.', 'character-message');
+                });
+
+            userInput.value = '';
+        }
+
+        function appendMessage(sender, message, cssClass) {
+            const chatWindow = document.getElementById('chat-window');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${cssClass}`;
+            messageDiv.innerHTML = `<b>${sender}:</b> ${message}`;
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+    </script>
+
+</body>
+
+</html>
