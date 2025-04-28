@@ -9,7 +9,7 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import openai
 from elasticsearch import Elasticsearch
-from views.character_prompt import build_prompt # 캐릭터챗 프롬프트 불러오기
+from views.character_prompt import build_prompt, generate_greeting # 캐릭터챗 프롬프트 불러오기
 from views.models import db, CharacterChatHistory # 캐릭터 챗 대화 저장용
 
 
@@ -516,6 +516,30 @@ def character_chat():
     character_code = request.args.get('character')  # 이제 'hanul', 'jihan' 같은 코드가 옴
     character_display_name = character_name_mapping.get(character_code, "알 수 없는 캐릭터")
     return render_template('character_chat.html', character_code=character_code, character_display_name=character_display_name)
+
+# LLM 호출 함수
+def call_llm_api(prompt):
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "너는 학생 고민 상담을 돕는 캐릭터야."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.8,
+        max_tokens=200
+    )
+    return response['choices'][0]['message']['content'].strip()
+
+# 캐릭터 첫 인사말 API
+@main_bp.route('/chat/character/get_greeting', methods=['POST'])
+def get_character_greeting():
+    data = request.json
+    character_code = data.get('character', '')
+
+    greeting = generate_greeting(character_code)
+
+    return jsonify({"greeting": greeting})
 
 # 캐릭터 메시지 보내는 API
 @main_bp.route('/chat/character/send_message', methods=['POST'])

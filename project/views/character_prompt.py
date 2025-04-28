@@ -1,3 +1,6 @@
+import openai
+import os
+from datetime import datetime
 # 캐릭터 페르소나 설정을 위한 프롬프트
 # chat_character.py에서 활용할 것
 
@@ -57,3 +60,38 @@ def build_prompt(character_name, student_question, retrieved_conversations):
 캐릭터 설정을 유지하며 학생에게 친절하게 답변해주세요.
 """
     return final_prompt
+
+
+# LLM 호출 함수
+def call_llm_api(prompt):
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "너는 학생 다양한 고민을 상담해주는 캐릭터야."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.8,
+        max_tokens=200
+    )
+    return response['choices'][0]['message']['content'].strip()
+
+# ✨ 추가할 "첫 인사말 생성 함수"
+def generate_greeting(character_code):
+    character_persona = character_prompts.get(character_code, "")
+    if not character_persona:
+        return "안녕하세요! 무엇이든 편하게 이야기해봐요. 😊"  # fallback
+
+    current_time = datetime.now().strftime("%H:%M")
+
+    prompt = f"""
+{character_persona}
+
+[지시사항]
+- 위 캐릭터 페르소나에 맞게 학생과의 첫 인사말을 작성하세요.
+- 고정된 문장이 아니라 매번 자연스럽고 친근하게 표현해주세요.
+- 현재 시간은 {current_time}입니다.
+- 2문장 이내로 작성해주세요.
+"""
+
+    return call_llm_api(prompt)
