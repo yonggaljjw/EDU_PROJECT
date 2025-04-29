@@ -137,23 +137,8 @@ nav a:hover::after {
 <body>
 
   <!-- ✅ _navbar.html 스타일 그대로 적용 -->
-  <header>
-    <div class="logo">
-      <a href="/" style="text-decoration: none; color: inherit;">AI 진로</a>
-    </div>
-    <nav>
-      {% if session.get("user_id") %}
-        <a href="/profile">내 프로필</a>
-        <a href="/profile/edit">프로필 수정</a>
-        <span style="margin-left: 20px;">{{ session.get("username") }}님 환영합니다!</span>
-        <a href="/logout">로그아웃</a>
-      {% else %}
-        <a href="/register">회원가입</a>
-        <a href="/login">로그인</a>
-      {% endif %}
-    </nav>
-  </header>
-
+  {% include "_navbar.html" %}
+  
   <div class="container">
     <h1>🔍 AI 진로 분석 결과</h1>
 

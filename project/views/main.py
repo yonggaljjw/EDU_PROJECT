@@ -17,12 +17,23 @@ from views.models import db, CharacterChatHistory # 캐릭터 챗 대화 저장�
 main_bp = Blueprint('main', __name__)
 
 
+# 공통 함수: 모든 템플릿에 로그인 상태 전달
+def get_template_context():
+    """모든 템플릿에 공통으로 전달할 컨텍스트를 반환합니다."""
+    is_logged_in = 'user_id' in session
+    return {'is_logged_in': is_logged_in}
+
 @main_bp.route('/')
 def home():
+    if request.args.get('force_reload'):
+        return redirect(url_for('main.home'))  # 서버 쪽에서 강제 리다이렉트 처리
+
     profile = None
     job_detail = None
 
-    # 학교/직업 데이터는 로그인 여부와 무관하게 항상 조회
+    # 세션 상태 확인
+    is_logged_in = 'user_id' in session
+
     all_schools = EmploymentFull.query.all()
     all_jobs = JobsInfo.query.filter(JobsInfo.salery.isnot(None)).all()
 
@@ -36,8 +47,7 @@ def home():
     else:
         random_jobs = all_jobs
 
-    # 로그인한 경우에만 프로필, 목표 직업 정보 가져오기
-    if 'user_id' in session:
+    if is_logged_in:
         profile = UserProfile.query.filter_by(user_id=session['user_id']).first()
         if profile and profile.target_career:
             job_detail = JobsInfo.query.filter_by(job=profile.target_career).first()
@@ -47,12 +57,16 @@ def home():
         profile=profile,
         job_detail=job_detail,
         random_schools=random_schools,
-        random_jobs=random_jobs
+        random_jobs=random_jobs,
+        is_logged_in=is_logged_in
     )
-
 
 @main_bp.route('/register', methods=['GET', 'POST'])
 def register():
+    # 이미 로그인 되어있으면 홈으로
+    if 'user_id' in session:
+        return redirect(url_for('main.home'))
+        
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         email = request.form.get('email', '').strip().lower()
@@ -77,11 +91,15 @@ def register():
         flash('회원가입이 완료되었습니다! 로그인 해주세요.')
         return redirect(url_for('main.home'))
 
-    return render_template('register.html')
+    return render_template('register.html', **get_template_context())
 
 
 @main_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    # 이미 로그인 되어있으면 홈으로
+    if 'user_id' in session:
+        return redirect(url_for('main.home'))
+        
     if request.method == 'POST':
         email = request.form.get('email', '').strip().lower()
         password = request.form.get('password')
@@ -101,14 +119,15 @@ def login():
         flash(f"{user.username}님 환영합니다!")
         return redirect(url_for('main.home'))
 
-    return render_template('login.html')
+    return render_template('login.html', **get_template_context())
 
 
 @main_bp.route('/logout')
 def logout():
     session.clear()
     flash("로그아웃 되었습니다.")
-    return redirect(url_for('main.home'))
+    # 강제 새로고침 추가_로그인/아웃 리다이렉트 위함
+    return redirect(url_for('main.home', force_reload=1))
 
 
 @main_bp.route('/profile')
@@ -119,7 +138,7 @@ def profile():
 
     profile = UserProfile.query.filter_by(user_id=session['user_id']).first()
     if profile:
-        return render_template('profile.html', profile=profile)
+        return render_template('profile.html', profile=profile, **get_template_context())
     else:
         flash("아직 프로필 정보가 없습니다. 테스트를 진행해주세요.")
         return redirect(url_for('main.profile_setup'))
@@ -131,7 +150,7 @@ def profile_setup():
         flash("로그인 후 이용해주세요.")
         return redirect(url_for('main.login'))
 
-    # ✅ 직업 목록 불러오기
+    # 직업 목록 불러오기
     job_list = JobsInfo.query.with_entities(JobsInfo.job).distinct().order_by(JobsInfo.job).all()
     job_list = [job[0] for job in job_list if job[0]]
 
@@ -153,7 +172,7 @@ def profile_setup():
         flash("프로필이 저장되었습니다.")
         return redirect(url_for('main.profile'))
 
-    return render_template('profile_setup.html', job_list=job_list)
+    return render_template('profile_setup.html', job_list=job_list, **get_template_context())
 
 
 @main_bp.route('/profile/edit', methods=['GET', 'POST'])
@@ -167,7 +186,7 @@ def profile_edit():
         flash("프로필이 없습니다. 먼저 작성해주세요.")
         return redirect(url_for('main.profile_setup'))
 
-    # ✅ 직업 목록 불러오기
+    # 직업 목록 불러오기
     job_list = JobsInfo.query.with_entities(JobsInfo.job).distinct().order_by(JobsInfo.job).all()
     job_list = [job[0] for job in job_list if job[0]]
 
@@ -186,112 +205,15 @@ def profile_edit():
         flash("프로필이 수정되었습니다.")
         return redirect(url_for('main.profile'))
 
-    return render_template('profile_edit.html', profile=profile, job_list=job_list)
+    return render_template('profile_edit.html', profile=profile, job_list=job_list, **get_template_context())
 
 
 @main_bp.route('/recommend')
 def recommend():
-    return render_template('recommend.html')
+    return render_template('recommend.html', **get_template_context())
 
 
-
-
-# 로깅 설정
-logging.basicConfig(level=logging.DEBUG)
-
-# OpenAI 키 설정
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
-
-# GPT 요청 함수 (질문별로 맞춤화된 프롬프트)
-
-# Elasticsearch 클라이언트
-es = Elasticsearch([os.getenv("ELASTICSEARCH_URL")])
-index_name = "ncs_skills"
-
-def get_ncs_rag_context(query_text, top_k=5):
-    # 1. 쿼리 임베딩 생성
-    embedding = openai.Embedding.create(
-        input=query_text,
-        model="text-embedding-3-small")['data'][0]['embedding']
-
-    # 2. ES 벡터 유사도 검색
-    knn_query = {
-        "field": "total_vector",
-        "query_vector": embedding,
-        "k": top_k,
-        "num_candidates": 100
-    }
-
-    response = es.search(
-        index=index_name,
-        knn=knn_query,
-        source=["compUnitName", "skills", "knowledge", "performance_criteria"]
-    )
-    docs = [hit["_source"] for hit in response["hits"]["hits"]]
-
-    # 3. 프롬프트용 텍스트로 정리
-    context = "\n\n".join([
-        f"직무명: {d.get('compUnitName','')}\n- 기술: {d.get('skills','')}\n- 지식: {d.get('knowledge','')}\n- 수행기준: {d.get('performance_criteria','')}"
-        for d in docs
-    ])
-    return context
-
-def get_gpt_answer(index, question_type, profile, answer):
-    base_info = f"""
-당신의 MBTI는 {profile.mbti},
-성적 평균은 {profile.grade_avg},
-관심 분야는 {profile.interest_tags},
-선호 과목은 {profile.favorite_subjects},
-소프트 스킬은 {profile.soft_skills},
-희망 진로는 {profile.target_career},
-희망 지역은 {profile.desired_region},
-희망 대학 유형은 {profile.desired_university_type},
-기타 활동 이력은 {profile.activities} 입니다.
-"""
-
-    # RAG: NCS 직무능력 유사 문서 검색
-    rag_context = get_ncs_rag_context(answer if question_type == "요약" else profile.target_career)
-
-    print(rag_context)
-    if question_type == "요약":
-        prompt = (
-            base_info
-            + f"\n\n[유사 직무능력 정보]\n{rag_context}"
-            + f"\n\n추가 질문:\n{answer}\n\n위 정보를 요약하고, 진로 방향과 관련 직업을 간결하게 정리해줘."
-        )
-    elif question_type == "진로":
-        prompt = (
-            base_info
-            + f"\n\n[유사 직무능력 정보]\n{rag_context}"
-            + "\n\n희망 진로에 필요한 자격증, 준비 전략 등을 구체적으로 제시해줘."
-        )
-    elif question_type == "학과":
-        prompt = (
-            base_info
-            + f"\n\n[유사 직무능력 정보]\n{rag_context}"
-            + "\n\n성적과 목표를 기반으로 진학 가능한 학과와 학교를 추천해줘."
-        )
-    else:
-        prompt = "[잘못된 질문 유형]"
-
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "너는 진로 전문 상담가야. 아래의 유사 직무능력 정보도 반드시 참고해서 답변해."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7,
-            max_tokens=800
-        )
-        return response['choices'][0]['message']['content']
-    except Exception as e:
-        logging.error("❌ GPT 호출 실패: %s", traceback.format_exc())
-        return f"[GPT 응답 오류 발생 - {question_type}]"
-
-
-# 메인 라우트 함수
+# 나머지 라우트 함수 (위의 패턴 적용)
 @main_bp.route('/recommend/ai', methods=['GET', 'POST'])
 def recommend_ai():
     if 'user_id' not in session:
@@ -335,16 +257,20 @@ def recommend_ai():
             flash("AI 분석 중 오류가 발생했습니다.")
             return redirect(url_for('main.recommend_ai'))
 
-    return render_template("recommend_ai.html", profile=profile, questions=questions)
+    return render_template("recommend_ai.html", profile=profile, questions=questions, **get_template_context())
 
 @main_bp.route('/recommend/result')
 def recommend_result():
+    if 'user_id' not in session:
+        flash("로그인이 필요합니다.")
+        return redirect(url_for('main.login'))
+        
     result_id = request.args.get('result_id')
     ai_result = AiResult.query.filter_by(id=result_id, user_id=session['user_id']).first()
     if not ai_result:
         flash("결과를 찾을 수 없습니다.")
         return redirect(url_for('main.recommend_ai'))
-    return render_template('recommend_result.html', result=ai_result.result)
+    return render_template('recommend_result.html', result=ai_result.result, **get_template_context())
 
 @main_bp.route('/history')
 def history():
@@ -353,7 +279,7 @@ def history():
         return redirect(url_for('main.login'))
 
     results = AiResult.query.filter_by(user_id=session['user_id']).order_by(AiResult.created_at.desc()).all()
-    return render_template("history.html", results=results)
+    return render_template("history.html", results=results, **get_template_context())
 
 
 @main_bp.route('/vision/plan', methods=['GET', 'POST'])
@@ -427,7 +353,7 @@ def vision_plan():
 
         return render_template('vision_plan_result.html', plan_steps=plan_steps, goal=goal)
 
-    return render_template('vision_plan.html')
+    return render_template('vision_plan.html', **get_template_context())
 
 
 # 캐릭터 챗
@@ -441,14 +367,19 @@ character_name_mapping = {
 # 캐릭터 선택 화면
 @main_bp.route('/chat/character/select')
 def select_character():
-    return render_template('character_select.html')  # 캐릭터 선택하는 페이지
+    if 'user_id' not in session:
+        flash("로그인 후 이용해주세요.")
+        return redirect(url_for('main.login'))
+    
+    return render_template('character_select.html', **get_template_context())
 
 # 캐릭터 채팅 화면 열기
 @main_bp.route('/chat/character/chat', methods=['GET'])
 def character_chat():
     character_code = request.args.get('character')  # 이제 'hanul', 'jihan' 같은 코드가 옴
     character_display_name = character_name_mapping.get(character_code, "알 수 없는 캐릭터")
-    return render_template('character_chat.html', character_code=character_code, character_display_name=character_display_name)
+    return render_template('character_chat.html', character_code=character_code, character_display_name=character_display_name, **get_template_context())
+
 
 # LLM 호출 함수
 def call_llm_api(prompt):
@@ -525,4 +456,5 @@ def send_message():
 def character_chat_history(character_name):
     # 최근 50개까지만 조회 (너가 원하는 만큼 조정 가능)
     histories = CharacterChatHistory.query.filter_by(character_name=character_name).order_by(CharacterChatHistory.timestamp.asc()).limit(50).all()
-    return render_template('character_history.html', character_name=character_name, histories=histories)
+    return render_template('character_history.html', character_name=character_name, histories=histories, **get_template_context())
+

@@ -164,21 +164,7 @@ nav a:hover::after {
 </head>
 <body>
 
-  <header>
-    <div class="logo">
-      <a href="/">AI 진로</a>
-    </div>
-    <nav>
-      {% if session.get("user_id") %}
-        <a href="/profile">내 프로필</a>
-        <a href="/profile/edit">프로필 수정</a>
-        <a href="/logout">로그아웃</a>
-      {% else %}
-        <a href="/register">회원가입</a>
-        <a href="/login">로그인</a>
-      {% endif %}
-    </nav>
-  </header>
+{% include "_navbar.html" %}
 
   <div class="container">
     <h1>AI 맞춤형 진로 분석 질문</h1>
