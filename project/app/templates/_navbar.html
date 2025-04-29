@@ -1,19 +1,118 @@
 <header>
-    <div class="logo">
-      <a href="/" class = "logo">AI 진로</a>
-    </div>
-    <nav>
-      <a href="/">홈</a>
-      {% if is_logged_in %}
-      <a href="/profile">프로필</a>
-      <a href="/recommend/ai">진로 추천받기</a>
-      <a href="/vision/plan">5Y컨설팅 설계</a>
-      <a href="/history">히스토리</a>
-      <a href="/logout">로그아웃</a>
-      {% else %}
-      <a href="/login">로그인</a>
-      <a href="/register">회원가입</a>
-      {% endif %}
-    </nav>
-  </header>
-  
+  <div class="logo">
+    <a href="/" class="logo">AI 진로</a>
+  </div>
+
+  <!-- 햄버거 메뉴 버튼 -->
+  <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+  <!-- 메뉴 리스트 -->
+  <nav id="navbar">
+    {% if is_logged_in %}
+    <a href="/recommend/ai">AI진로추천</a>
+    <a href="/vision/plan">5Y컨설팅</a>
+    <a href="/chat/character/select">캐릭터챗</a>
+    <span class="nav-divider"></span>
+    <a href="/history">히스토리</a>
+    <a href="/profile">프로필</a>
+    <a href="/logout">로그아웃</a>
+    {% else %}
+    <a href="/login">로그인</a>
+    <a href="/register">회원가입</a>
+    {% endif %}
+  </nav>
+</header>
+
+<style>/* 기본 header 스타일 */
+header {
+  min-height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  background-color: #7366bd;
+  color: white;
+  position: relative;
+}
+
+/* 로고 */
+.logo {
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+  font-size: 20px;
+}
+
+/* nav 링크들 */
+nav {
+  display: flex;
+  align-items: center;
+}
+
+/* nav a 링크 스타일 */
+nav a {
+  padding: 15px 10px;
+  color: white;
+  text-decoration: none;
+  margin: 0 2px;
+  padding: 10px 0;
+}
+
+/* 구분선 */
+.nav-divider {
+  height: 20px;
+  width: 1px;
+  background-color: rgba(255, 255, 255, 0.5);
+  margin: 0 5px;
+}
+
+/* 햄버거 버튼 기본 숨김 */
+.menu-toggle {
+  display: none;
+  background: none;
+  color: white;
+  font-size: 28px;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  width: auto;
+}
+
+/* ------------------- */
+/* 반응형 스타일 (모바일 화면일 때) */
+@media (max-width: 768px) {
+  nav {
+    display: none;
+    flex-direction: column;
+    background-color: #7366bd;
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    width: 200px;
+    border-radius: 10px;
+    padding: 10px 0;
+    z-index: 999;
+  }
+
+  nav a {
+    padding: 10px 20px;
+    margin: 5px 0;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  nav.show {
+    display: flex;
+  }
+}
+
+</style>
+
+<script>
+  function toggleMenu() {
+    const nav = document.getElementById('navbar');
+    nav.classList.toggle('show');
+  }
+</script>
