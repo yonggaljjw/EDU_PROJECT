@@ -100,17 +100,8 @@
       align-items: center;
     }
 
-    input {
+    input, select {
       width: 93%;
-      padding: 15px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      font-size: 1.1rem;
-      transition: 0.3s;
-    }
-
-    select {
-      width: 100%;
       padding: 15px;
       border-radius: 10px;
       border: 1px solid #ccc;
@@ -142,6 +133,50 @@
       background: #5e35b1;
     }
 
+    /* 로딩 오버레이 */
+    #loading-overlay {
+      display: none; /* 여기!! 초기에는 무조건 none이어야 함 */
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    /* 로딩 애니메이션 */
+    .loader {
+      border: 8px solid #f3e5f5;
+      border-top: 8px solid #7e57c2;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #loading-text {
+      font-size: 1.5rem;
+      color: white;
+      text-align: center;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { opacity: 0.6; }
+    }
+
     footer {
       margin-top: auto;
       padding: 20px;
@@ -152,6 +187,7 @@
     }
   </style>
 </head>
+
 <body>
 
 <header>
@@ -170,8 +206,9 @@
 
 <main>
   <h2>나의 목표를 입력하세요</h2>
-  <form method="POST" class="form-container">
-    <input type="text" name="goal" placeholder="예: 데이터 사이언티스트 되기" required />
+
+  <form method="POST" class="form-container" id="goal-form">
+    <input type="text" name="goal" id="goal" placeholder="예: 데이터 사이언티스트 되기" required />
     <input type="number" name="age" placeholder="현재 나이 (예: 22)" required />
     <input type="text" name="year" placeholder="현재 학년/상태 (예: 대학교 2학년, 졸업 예정)" required />
     <select name="army" required>
@@ -180,11 +217,47 @@
       <option value="군 복무 완료">군 복무 완료</option>
       <option value="군 복무 없음">군 복무 없음</option>
     </select>
-    <button type="submit">플랜 생성하기</button>
+    <button type="submit" id="submit-button">플랜 생성하기</button>
   </form>
 </main>
 
+<footer>
+  © 2025 AI 진로설계
+</footer>
 
+<!-- 로딩 오버레이 -->
+<div id="loading-overlay">
+  <div class="loader"></div>
+  <div id="loading-text">잠시만 기다려주세요...</div>
+</div>
+
+<script>
+  const form = document.getElementById('goal-form');
+  const loadingOverlay = document.getElementById('loading-overlay');
+  const loadingText = document.getElementById('loading-text');
+  const submitButton = document.getElementById('submit-button');
+
+  submitButton.addEventListener('click', function() {
+    const goal = document.getElementById('goal').value.trim();
+    if (!goal) return; // 입력값 없으면 무시
+
+    // 버튼 누르는 순간 오버레이 띄우기
+    loadingOverlay.style.display = 'flex';
+    loadingText.textContent = `"${goal}"를 위한 플랜을 짜는 중...`;
+
+    // 6초 후 메시지 변경
+    setTimeout(() => {
+      loadingText.textContent = "맞춤 플랜을 정리하는 중...";
+    }, 6000);
+
+    // 12초 후 메시지 변경
+    setTimeout(() => {
+      loadingText.textContent = "결과를 출력하는 중...";
+    }, 12000);
+
+    // 폼은 기본 제출 (submit) 진행
+  });
+</script>
 
 </body>
 </html>
