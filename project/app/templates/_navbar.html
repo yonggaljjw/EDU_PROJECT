@@ -3,16 +3,16 @@
       <a href="/" class = "logo">AI 진로</a>
     </div>
     <nav>
-      {% if session.get("user_id") %}
-        <a href="/profile">내 프로필</a>
-        <a href="/profile/edit">프로필 수정</a>
-        <a href="/vision/plan">5Y컨설팅</a>
-        <a href="/history">히스토리</a>
-        <a href="/logout">로그아웃</a>
+      <a href="/">홈</a>
+      {% if is_logged_in %}
+      <a href="/profile">프로필</a>
+      <a href="/recommend/ai">진로 추천받기</a>
+      <a href="/vision/plan">5Y컨설팅 설계</a>
+      <a href="/history">히스토리</a>
+      <a href="/logout">로그아웃</a>
       {% else %}
-        <a href="/register">회원가입</a>
-        <a href="/login">로그인</a>
-      
+      <a href="/login">로그인</a>
+      <a href="/register">회원가입</a>
       {% endif %}
     </nav>
   </header>
