@@ -86,25 +86,71 @@
       font-size: 1.8rem;
     }
 
-    .plan-card {
-      background: white;
-      border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
       max-width: 700px;
       width: 100%;
-      padding: 30px;
-      margin-bottom: 30px;
+      position: relative;
+      padding-left: 20px;
     }
 
-    .plan-card p {
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 10px;
+      width: 4px;
+      height: 100%;
+      background-color: #7e57c2;
+    }
+
+    .timeline-step {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 30px;
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .circle {
+      width: 20px;
+      height: 20px;
+      background: #7e57c2;
+      border-radius: 50%;
+      margin-right: 15px;
+      flex-shrink: 0;
+    }
+
+    .content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 100%;
+    }
+
+    .content p {
+      margin: 0;
       font-size: 1.1rem;
       color: #444;
-      margin-bottom: 10px;
+      text-align: left;
       line-height: 1.6;
-      white-space: pre-line;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .back-button {
+      margin-top: 30px;
       padding: 12px 30px;
       background: #7e57c2;
       color: white;
@@ -148,13 +194,23 @@
 <main>
   <h2>"{{ goal }}" 목표를 위한 5년 커리어 로드맵</h2>
 
-  <div class="plan-card">
-    <p>{{ plan }}</p>
+  <div class="timeline">
+    {% for step in plan_steps %}
+    <div class="timeline-step">
+      <div class="circle"></div>
+      <div class="content">
+        <p>{{ step }}</p>
+      </div>
+    </div>
+    {% endfor %}
   </div>
 
   <a href="/" class="back-button">🏠 홈으로 돌아가기</a>
 </main>
 
+<footer>
+  © 2025 AI 진로설계
+</footer>
 
 </body>
 </html>

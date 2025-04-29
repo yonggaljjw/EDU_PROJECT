@@ -391,6 +391,7 @@ def vision_plan():
 - 학생의 현재 학년과 나이를 반영하여 현실적이고 자연스러운 커리어 플랜을 세우세요.
 - 중학생은 기초 학습 위주, 고등학생은 비교과 활동과 진학 준비를, 대학생 이상은 전공 심화 및 취업 준비를 중심으로 계획하세요.
 - 군 복무가 필요한 경우에는 적절한 시기에 반영하세요.
+- **1년 차: ~**, **2년 차: ~** 이런 식으로 연차별 구분해서 작성하세요.
 - 1년 차부터 5년 차까지 연차별 목표를 자연스러운 문단 설명 형식으로 제시하세요.
 - 전체 분량은 간결하게 7~9문장 이내로 작성하세요.
 """
@@ -409,13 +410,17 @@ def vision_plan():
                 max_tokens=700
             )
             plan_text = response['choices'][0]['message']['content']
-        except Exception as e:
-            plan_text = f"AI 호출 중 오류가 발생했습니다: {str(e)}"
 
-        return render_template('vision_plan_result.html', plan=plan_text, goal=goal)
+            # ✅ 연차별로 분리
+            plan_lines = plan_text.split('\n')
+            plan_steps = [line.strip() for line in plan_lines if line.strip()]  # 빈 줄 제거
+
+        except Exception as e:
+            plan_steps = [f"AI 호출 중 오류가 발생했습니다: {str(e)}"]
+
+        return render_template('vision_plan_result.html', plan_steps=plan_steps, goal=goal)
 
     return render_template('vision_plan.html')
-
 
 # 캐릭터 챗
 # 💬 캐릭터 코드 ↔ 한글 이름 매핑
