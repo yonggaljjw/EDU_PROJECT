@@ -5,6 +5,67 @@
   <title>프로필 작성</title>
   <link href="https://fonts.googleapis.com/css2?family=Pretendard&display=swap" rel="stylesheet">
   <style>
+    /* 전체 폼 요소 */
+    .form-group {
+      margin-bottom: 25px;
+      position: relative;
+      clear: both;
+    }
+
+    /* 라벨 디스플레이 강화 */
+    label {
+      display: block !important;
+      margin-bottom: 10px !important;
+      font-weight: 600 !important;
+      color: #333 !important;
+      font-size: 1rem !important;
+      position: relative !important;
+      z-index: 10 !important;
+      background-color: transparent !important;
+    }
+
+    /* 입력 필드 스타일 강화 */
+    input,
+    select,
+    textarea {
+      width: 100% !important;
+      padding: 12px !important;
+      border-radius: 5px !important;
+      border: 1px solid #ccc !important;
+      background-color: white !important;
+      position: relative !important;
+      z-index: 5 !important;
+      font-size: 1rem !important;
+    }
+
+    /* 라벨과 입력 필드 간 간격 */
+    label+input,
+    label+select,
+    label+textarea {
+      margin-top: 5px !important;
+    }
+
+    /* 전송 버튼 스타일 */
+    button[type="submit"] {
+      margin-top: 25px !important;
+      padding: 12px !important;
+      background-color: #7e57c2 !important;
+      color: white !important;
+      border: none !important;
+      border-radius: 5px !important;
+      font-size: 1rem !important;
+      cursor: pointer !important;
+      width: 100% !important;
+    }
+
+    /* 입력 필드 포커스 시 스타일 */
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none !important;
+      border-color: #6a1b9a !important;
+      box-shadow: 0 0 5px rgba(106, 27, 154, 0.5) !important;
+    }
     * {
       margin: 0;
       padding: 0;

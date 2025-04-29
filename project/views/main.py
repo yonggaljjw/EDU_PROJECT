@@ -150,9 +150,17 @@ def profile_setup():
         flash("로그인 후 이용해주세요.")
         return redirect(url_for('main.login'))
 
-    # 직업 목록 불러오기
+    # 기존 프로필 확인
+    existing_profile = UserProfile.query.filter_by(user_id=session['user_id']).first()
+    if existing_profile:
+        # 이미 프로필이 있으면 edit 페이지로 리다이렉트
+        flash("프로필이 이미 존재합니다. 수정 페이지로 이동합니다.")
+        return redirect(url_for('main.profile_edit'))
+
     job_list = JobsInfo.query.with_entities(JobsInfo.job).distinct().order_by(JobsInfo.job).all()
     job_list = [job[0] for job in job_list if job[0]]
+
+    next_page = request.args.get('next')  # ✅ 추가
 
     if request.method == 'POST':
         profile = UserProfile(
@@ -170,10 +178,15 @@ def profile_setup():
         db.session.add(profile)
         db.session.commit()
         flash("프로필이 저장되었습니다.")
-        return redirect(url_for('main.profile'))
 
-    return render_template('profile_setup.html', job_list=job_list, **get_template_context())
+        # ✅ 저장 후 next 파라미터가 있으면 그쪽으로 이동
+        if next_page == 'recommend_ai':
+            return redirect(url_for('main.recommend_ai'))
+        else:
+            return redirect(url_for('main.profile'))
 
+    # 빈 프로필 폼 제공 (profile=None)
+    return render_template('profile_setup.html', profile=None, job_list=job_list, next_page=next_page, **get_template_context())
 
 @main_bp.route('/profile/edit', methods=['GET', 'POST'])
 def profile_edit():
@@ -224,7 +237,7 @@ def recommend_ai():
 
     if not profile:
         flash("AI 분석을 위해 먼저 프로필을 작성해주세요.")
-        return redirect(url_for('main.profile_setup'))
+        return redirect(url_for('main.profile_setup', next='recommend_ai'))
 
     questions = [
         "당신의 경험과 특성을 요약해 주세요.",
