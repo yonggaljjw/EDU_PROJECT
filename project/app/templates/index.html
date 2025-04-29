@@ -233,6 +233,66 @@ nav a:hover::after {
       color: #666;
     }
 
+    .community-section {
+  max-width: 1280px;
+  width: 100%;
+  margin: 40px auto;
+  padding: 0 30px;
+}
+
+.community-section h2 {
+  font-size: 1.6rem;
+  color: #4a148c;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.community-grid {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.community-box {
+  flex: 1;
+  min-width: 280px;
+  max-width: 400px;
+  background: white;
+  padding: 20px 25px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.community-box h3 {
+  font-size: 1.2rem;
+  color: #512da8;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+
+.community-box ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.community-box li {
+  font-size: 0.95rem;
+  color: #333;
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.community-box li:hover {
+  color: #7e57c2;
+}
+
+
     @media (max-width: 768px) {
 
       .card-section,
@@ -246,6 +306,8 @@ nav a:hover::after {
         margin-bottom: 20px;
       }
     }
+
+    
   </style>
 </head>
 
@@ -265,6 +327,7 @@ nav a:hover::after {
     </nav>
   </header>
 
+  
   <section class="main-banner">
     <h1>AI 진로 설계 시스템 OPEN!</h1>
     <p>프로필, 생활기록부, 상담 챗봇 기반으로 나에게 맞는 진로와 학과를 찾아보세요</p>
@@ -321,9 +384,46 @@ nav a:hover::after {
     </div>
   </div>
 
-  <footer>
-    © 2025 AI 진로설계 시스템. All rights reserved.
-  </footer>
+
+  <div class="community-section">
+    <h2>인기 커뮤니티</h2>
+  
+    <div class="community-grid">
+      <div class="community-box">
+        <h3># 경영학</h3>
+        <ul>
+          <li>🔔 [모집] 2025 상반기 경영학 세미나 참가자 모집</li>
+          <li>🔔 [스터디] 경영 전략 케이스 스터디 팀원 모집</li>
+          <li>🔔 [정보] 국내 MBA 과정 설명회 일정 공유</li>
+          <li>🔔 [모집] 2025 취업 대비 경영학 모의면접반 모집</li>
+          <li>🔔 [소식] 경영학과 신입생 오리엔테이션 일정 발표</li>
+        </ul>
+      </div>
+  
+      <div class="community-box">
+        <h3># 데이터 분석</h3>
+        <ul>
+          <li>🔔 [공모전] 제 7회 교육부 데이터 분석 공모전 개최</li>
+          <li>🔔 [모집] 파이썬 데이터 분석 스터디 (초급반)</li>
+          <li>🔔 [모집] SQL 데이터 처리 실습 그룹원 모집</li>
+          <li>🔔 [뉴스] 2025년 빅데이터 산업 트렌드 리포트 발간</li>
+          <li>🔔 [정보] Kaggle 대회 초보자 가이드 정리</li>
+        </ul>
+      </div>
+  
+      <div class="community-box">
+        <h3># 예술고</h3>
+        <ul>
+          <li>🔔 [모집] 26년 00 예고 보컬 연습팀 멤버 찾습니다</li>
+          <li>🔔 [공지] 예고 입시 대비 포트폴리오 설명회 개최</li>
+          <li>🔔 [모집] 미술대학 입시 대비 모의면접반 참여자 모집</li>
+          <li>🔔 [소식] 2025 전국 청소년 연극제 참가 안내</li>
+          <li>🔔 [모집] 무용 전공 예비고1 워크숍 프로그램 오픈</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  
 
 </body>
 
