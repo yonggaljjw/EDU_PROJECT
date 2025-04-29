@@ -397,6 +397,8 @@ def vision_plan():
 """
 
         import openai
+        import re
+
         openai.api_key = os.getenv("OPENAI_API_KEY")
 
         try:
@@ -411,9 +413,14 @@ def vision_plan():
             )
             plan_text = response['choices'][0]['message']['content']
 
-            # ✅ 연차별로 분리
+            # ✅ 연차별로 분리하고, 마크다운 **굵은 글씨** 제거
             plan_lines = plan_text.split('\n')
-            plan_steps = [line.strip() for line in plan_lines if line.strip()]  # 빈 줄 제거
+            plan_steps = []
+            for line in plan_lines:
+                clean_line = line.strip()
+                if clean_line:
+                    clean_line = re.sub(r'\*\*(.*?)\*\*', r'\1', clean_line)  # **텍스트** → 텍스트
+                    plan_steps.append(clean_line)
 
         except Exception as e:
             plan_steps = [f"AI 호출 중 오류가 발생했습니다: {str(e)}"]
@@ -421,6 +428,7 @@ def vision_plan():
         return render_template('vision_plan_result.html', plan_steps=plan_steps, goal=goal)
 
     return render_template('vision_plan.html')
+
 
 # 캐릭터 챗
 # 💬 캐릭터 코드 ↔ 한글 이름 매핑
