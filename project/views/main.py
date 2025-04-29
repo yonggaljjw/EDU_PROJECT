@@ -225,6 +225,100 @@ def profile_edit():
 def recommend():
     return render_template('recommend.html', **get_template_context())
 
+# 로깅 설정
+logging.basicConfig(level=logging.DEBUG)
+
+# OpenAI 키 설정
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+
+# GPT 요청 함수 (질문별로 맞춤화된 프롬프트)
+
+# Elasticsearch 클라이언트
+es = Elasticsearch([os.getenv("ELASTICSEARCH_URL")])
+index_name = "ncs_skills"
+
+def get_ncs_rag_context(query_text, top_k=5):
+    # 1. 쿼리 임베딩 생성
+    embedding = openai.Embedding.create(
+        input=query_text,
+        model="text-embedding-3-small")['data'][0]['embedding']
+
+    # 2. ES 벡터 유사도 검색
+    knn_query = {
+        "field": "total_vector",
+        "query_vector": embedding,
+        "k": top_k,
+        "num_candidates": 100
+    }
+
+    response = es.search(
+        index=index_name,
+        knn=knn_query,
+        source=["compUnitName", "skills", "knowledge", "performance_criteria"]
+    )
+    docs = [hit["_source"] for hit in response["hits"]["hits"]]
+
+    # 3. 프롬프트용 텍스트로 정리
+    context = "\n\n".join([
+        f"직무명: {d.get('compUnitName','')}\n- 기술: {d.get('skills','')}\n- 지식: {d.get('knowledge','')}\n- 수행기준: {d.get('performance_criteria','')}"
+        for d in docs
+    ])
+    return context
+
+def get_gpt_answer(index, question_type, profile, answer):
+    base_info = f"""
+    당신의 MBTI는 {profile.mbti},
+    성적 평균은 {profile.grade_avg},
+    관심 분야는 {profile.interest_tags},
+    선호 과목은 {profile.favorite_subjects},
+    소프트 스킬은 {profile.soft_skills},
+    희망 진로는 {profile.target_career},
+    희망 지역은 {profile.desired_region},
+    희망 대학 유형은 {profile.desired_university_type},
+    기타 활동 이력은 {profile.activities} 입니다.
+    """
+
+    # RAG: NCS 직무능력 유사 문서 검색
+    rag_context = get_ncs_rag_context(answer if question_type == "요약" else profile.target_career)
+
+    print(rag_context)
+    if question_type == "요약":
+        prompt = (
+            base_info
+            + f"\n\n[유사 직무능력 정보]\n{rag_context}"
+            + f"\n\n추가 질문:\n{answer}\n\n위 정보를 요약하고, 진로 방향과 관련 직업을 간결하게 정리해줘."
+        )
+    elif question_type == "진로":
+        prompt = (
+            base_info
+            + f"\n\n[유사 직무능력 정보]\n{rag_context}"
+            + "\n\n희망 진로에 필요한 자격증, 준비 전략 등을 구체적으로 제시해줘."
+        )
+    elif question_type == "학과":
+        prompt = (
+            base_info
+            + f"\n\n[유사 직무능력 정보]\n{rag_context}"
+            + "\n\n성적과 목표를 기반으로 진학 가능한 학과와 학교를 추천해줘."
+        )
+    else:
+        prompt = "[잘못된 질문 유형]"
+
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "너는 진로 전문 상담가야. 아래의 유사 직무능력 정보도 반드시 참고해서 답변해."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=800
+        )
+        return response['choices'][0]['message']['content']
+    except Exception as e:
+        logging.error("❌ GPT 호출 실패: %s", traceback.format_exc())
+        return f"[GPT 응답 오류 발생 - {question_type}]"
+
 
 # 나머지 라우트 함수 (위의 패턴 적용)
 @main_bp.route('/recommend/ai', methods=['GET', 'POST'])
