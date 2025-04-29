@@ -405,7 +405,7 @@ def vision_plan():
         if age < 18 or '고등학교' in year:
             army_info = "군 복무는 현재 고려하지 않아도 됩니다."
         else:
-            if army == "가는 편이다":
+            if army == "군 복무 예정":
                 army_info = "군 복무 예정이므로 복무 기간(약 1년 6개월~2년)은 온라인 학습, 자격증 준비 등에 활용하세요."
             else:
                 army_info = "군 복무 계획이 없으므로 바로 진학 또는 취업 준비를 하세요."
@@ -445,22 +445,39 @@ def vision_plan():
                 max_tokens=700
             )
             plan_text = response['choices'][0]['message']['content']
-
-            # ✅ 연차별로 분리하고, 마크다운 **굵은 글씨** 제거
             plan_lines = plan_text.split('\n')
-            plan_steps = []
-            for line in plan_lines:
-                clean_line = line.strip()
-                if clean_line:
-                    clean_line = re.sub(r'\*\*(.*?)\*\*', r'\1', clean_line)  # **텍스트** → 텍스트
-                    plan_steps.append(clean_line)
-
+            plan_steps = [re.sub(r'\*\*(.*?)\*\*', r'\1', line.strip()) for line in plan_lines if line.strip()]
         except Exception as e:
             plan_steps = [f"AI 호출 중 오류가 발생했습니다: {str(e)}"]
 
-        return render_template('vision_plan_result.html', plan_steps=plan_steps, goal=goal)
+        # ✅ 세션에 저장 후 결과 페이지로 이동
+        session['plan_steps'] = plan_steps
+        session['goal'] = goal
+        return redirect(url_for('main.vision_plan_result'))
 
     return render_template('vision_plan.html', **get_template_context())
+@main_bp.route('/vision/plan/result', methods=['GET'])
+def vision_plan_result():
+    if 'user_id' not in session:
+        flash("로그인 후 이용해주세요.")
+        return redirect(url_for('main.login'))
+
+    # ✅ 세션에서 pop으로 읽어오고 제거
+    plan_steps = session.pop('plan_steps', None)
+    goal = session.pop('goal', None)
+
+    if not plan_steps or not goal:
+        flash("잘못된 접근입니다.")
+        return redirect(url_for('main.vision_plan'))
+
+    return render_template(
+        'vision_plan_result.html',
+        plan_steps=plan_steps,
+        goal=goal,
+        **get_template_context()
+    )
+
+
 
 
 # 캐릭터 챗
