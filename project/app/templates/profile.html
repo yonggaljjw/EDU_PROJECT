@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <title>내 프로필</title>
@@ -11,13 +12,14 @@
       box-sizing: border-box;
       font-family: 'Pretendard', sans-serif;
     }
+
     body {
       background: linear-gradient(135deg, #e0f7fa, #e1bee7);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
-    
+
     .logo a {
       font-size: 1.5rem;
       font-weight: bold;
@@ -25,52 +27,56 @@
       text-decoration: none;
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
     }
+
     header {
-  width: 100%;
-  padding: 20px 40px; /* ✅ 이걸 기본으로 고정 */
-  background: linear-gradient(135deg, #7e57c2, #5c6bc0);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
+      width: 100%;
+      padding: 20px 40px;
+      /* ✅ 이걸 기본으로 고정 */
+      background: linear-gradient(135deg, #7e57c2, #5c6bc0);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
 
-nav {
-  display: flex;
-  gap: 30px; /* ✅ 링크 간격 30px */
-  align-items: center;
-}
+    nav {
+      display: flex;
+      gap: 30px;
+      /* ✅ 링크 간격 30px */
+      align-items: center;
+    }
 
-nav a {
-  text-decoration: none;
-  color: white;
-  font-size: 1rem; /* ✅ 링크 폰트 크기 1rem */
-  padding-bottom: 5px;
-  position: relative;
-  transition: all 0.3s;
-}
+    nav a {
+      text-decoration: none;
+      color: white;
+      font-size: 1rem;
+      /* ✅ 링크 폰트 크기 1rem */
+      padding-bottom: 5px;
+      position: relative;
+      transition: all 0.3s;
+    }
 
-nav a::after {
-  content: '';
-  position: absolute;
-  width: 0%;
-  height: 2px;
-  bottom: 0;
-  left: 0;
-  background-color: white;
-  transition: all 0.3s ease-in-out;
-}
+    nav a::after {
+      content: '';
+      position: absolute;
+      width: 0%;
+      height: 2px;
+      bottom: 0;
+      left: 0;
+      background-color: white;
+      transition: all 0.3s ease-in-out;
+    }
 
-nav a:hover {
-  color: #ffe082;
-}
+    nav a:hover {
+      color: #ffe082;
+    }
 
-nav a:hover::after {
-  width: 100%;
-}
+    nav a:hover::after {
+      width: 100%;
+    }
 
     main {
       flex: 1;
@@ -97,7 +103,7 @@ nav a:hover::after {
       background-color: #ffffff;
       border-radius: 16px;
       padding: 24px 30px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
       transition: all 0.3s ease;
     }
 
@@ -124,13 +130,49 @@ nav a:hover::after {
       margin-top: auto;
     }
 
+    /* 버튼 스타일 추가 */
+    .button-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 40px;
+      margin-bottom: 20px;
+    }
+
+    .edit-button {
+      background: linear-gradient(135deg, #7e57c2, #5c6bc0);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .edit-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      background: linear-gradient(135deg, #673ab7, #3f51b5);
+    }
+
     @media (max-width: 768px) {
       .profile-grid {
         grid-template-columns: 1fr;
       }
+
+      .edit-button {
+        width: 100%;
+        max-width: 300px;
+        text-align: center;
+      }
     }
   </style>
 </head>
+
 <body>
 
   {% include "_navbar.html" %}
@@ -185,11 +227,23 @@ nav a:hover::after {
         <div class="section-content">{{ profile.activities }}</div>
       </div>
     </div>
+
+    <!-- 프로필 수정 버튼만 추가 -->
+    <div class="button-container">
+      <a href="{{ url_for('main.profile_edit') }}" class="edit-button">프로필 수정하기</a>
+    </div>
     {% else %}
-      <p>프로필 정보를 불러올 수 없습니다.</p>
+    <p style="text-align: center; font-size: 1.2rem; margin: 40px 0;">프로필 정보를 불러올 수 없습니다.</p>
+    <div class="button-container">
+      <a href="{{ url_for('main.profile_setup') }}" class="edit-button">프로필 작성하기</a>
+    </div>
     {% endif %}
   </main>
 
+  <footer>
+    © 2025 AI 진로. All rights reserved.
+  </footer>
 
 </body>
+
 </html>
