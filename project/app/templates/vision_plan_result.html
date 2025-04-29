@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <title>나의 커리어 플랜</title>
@@ -14,6 +15,7 @@
       flex-direction: column;
     }
 
+    /* 네비게이션 영역 */
     .logo a {
       font-size: 1.5rem;
       font-weight: bold;
@@ -23,51 +25,52 @@
     }
 
     header {
-  width: 100%;
-  padding: 20px 40px; /* ✅ 이걸 기본으로 고정 */
-  background: linear-gradient(135deg, #7e57c2, #5c6bc0);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
+      width: 100%;
+      padding: 20px 40px; /* ✅ 이걸 기본으로 고정 */
+      background: linear-gradient(135deg, #7e57c2, #5c6bc0);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
 
-nav {
-  display: flex;
-  gap: 30px; /* ✅ 링크 간격 30px */
-  align-items: center;
-}
+    nav {
+      display: flex;
+      gap: 30px; /* ✅ 링크 간격 30px */
+      align-items: center;
+    }
 
-nav a {
-  text-decoration: none;
-  color: white;
-  font-size: 1rem; /* ✅ 링크 폰트 크기 1rem */
-  padding-bottom: 5px;
-  position: relative;
-  transition: all 0.3s;
-}
+    nav a {
+      text-decoration: none;
+      color: white;
+      font-size: 1rem; /* ✅ 링크 폰트 크기 1rem */
+      padding-bottom: 5px;
+      position: relative;
+      transition: all 0.3s;
+    }
 
-nav a::after {
-  content: '';
-  position: absolute;
-  width: 0%;
-  height: 2px;
-  bottom: 0;
-  left: 0;
-  background-color: white;
-  transition: all 0.3s ease-in-out;
-}
+    nav a::after {
+      content: '';
+      position: absolute;
+      width: 0%;
+      height: 2px;
+      bottom: 0;
+      left: 0;
+      background-color: white;
+      transition: all 0.3s ease-in-out;
+    }
 
-nav a:hover {
-  color: #ffe082;
-}
+    nav a:hover {
+      color: #ffe082;
+    }
 
-nav a:hover::after {
-  width: 100%;
-}
+    nav a:hover::after {
+      width: 100%;
+    }
+
     main {
       flex: 1;
       display: flex;
@@ -76,13 +79,11 @@ nav a:hover::after {
       padding: 60px 20px;
       text-align: center;
     }
-
     h2 {
       color: #6a1b9a;
       margin-bottom: 30px;
       font-size: 1.8rem;
     }
-
     .timeline {
       display: flex;
       flex-direction: column;
@@ -92,7 +93,6 @@ nav a:hover::after {
       position: relative;
       padding-left: 20px;
     }
-
     .timeline::before {
       content: '';
       position: absolute;
@@ -102,14 +102,12 @@ nav a:hover::after {
       height: 100%;
       background-color: #7e57c2;
     }
-
     .timeline-step {
       display: flex;
       align-items: flex-start;
       margin-bottom: 30px;
       animation: fadeInUp 0.8s ease forwards;
     }
-
     .circle {
       width: 20px;
       height: 20px;
@@ -118,7 +116,6 @@ nav a:hover::after {
       margin-right: 15px;
       flex-shrink: 0;
     }
-
     .content {
       background: white;
       padding: 20px;
@@ -126,7 +123,6 @@ nav a:hover::after {
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       width: 100%;
     }
-
     .content p {
       margin: 0;
       font-size: 1.1rem;
@@ -134,7 +130,6 @@ nav a:hover::after {
       text-align: left;
       line-height: 1.6;
     }
-
     @keyframes fadeInUp {
       from {
         opacity: 0;
@@ -145,7 +140,6 @@ nav a:hover::after {
         transform: translateY(0);
       }
     }
-
     .back-button {
       margin-top: 30px;
       padding: 12px 30px;
@@ -157,11 +151,9 @@ nav a:hover::after {
       text-decoration: none;
       transition: 0.3s;
     }
-
     .back-button:hover {
       background: #5e35b1;
     }
-
     footer {
       margin-top: auto;
       padding: 20px;
@@ -171,29 +163,28 @@ nav a:hover::after {
       color: #555;
     }
   </style>
-</head>
-<body>
+  </head>
+  
+  <body>
+    {% include "_navbar.html" %}
 
-<header>
-  {% include "_navbar.html" %}  
+    <main>
+      <h2>"{{ goal }}" 목표를 위한 5년 커리어 로드맵</h2>
 
-<main>
-  <h2>"{{ goal }}" 목표를 위한 5년 커리어 로드맵</h2>
-
-  <div class="timeline">
-    {% for step in plan_steps %}
-    <div class="timeline-step">
-      <div class="circle"></div>
-      <div class="content">
-        <p>{{ step }}</p>
+      <div class="timeline">
+        {% for step in plan_steps %}
+        <div class="timeline-step">
+          <div class="circle"></div>
+          <div class="content">
+            <p>{{ step }}</p>
+          </div>
+        </div>
+        {% endfor %}
       </div>
-    </div>
-    {% endfor %}
-  </div>
 
-  <a href="/" class="back-button">🏠 홈으로 돌아가기</a>
-</main>
+      <a href="/" class="back-button">🏠 홈으로 돌아가기</a>
+    </main>
 
+  </body>
 
-</body>
 </html>
