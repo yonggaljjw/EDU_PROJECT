@@ -1,6 +1,9 @@
 <header>
   <div class="logo">
-    <a href="/" class="logo">AI 진로</a>
+    <a href="/" class="logo">
+      <span class="logo-main">커리어</span>
+      <span class="logo-sub">네비</span>
+    </a>
   </div>
 
   <!-- 햄버거 메뉴 버튼 -->
@@ -23,7 +26,8 @@
   </nav>
 </header>
 
-<style>/* 기본 header 스타일 */
+<style>
+/* 기본 header 스타일 */
 header {
   min-height: 60px;
   display: flex;
@@ -35,12 +39,24 @@ header {
   position: relative;
 }
 
-/* 로고 */
-.logo {
-  font-weight: bold;
-  color: white;
+/* 로고 스타일 */
+.logo a {
   text-decoration: none;
-  font-size: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.logo-main {
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: white;
+}
+
+.logo-sub {
+  font-weight: 900;
+  font-size: 1.3rem;
+  color: #ffe082;
+  margin-left: 4px;
 }
 
 /* nav 링크들 */
@@ -49,7 +65,6 @@ nav {
   align-items: center;
 }
 
-/* nav a 링크 스타일 */
 nav a {
   padding: 15px 10px;
   color: white;
@@ -107,7 +122,6 @@ nav a {
     display: flex;
   }
 }
-
 </style>
 
 <script>
