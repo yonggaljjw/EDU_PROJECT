@@ -13,7 +13,7 @@
     }
 
     body {
-      background: linear-gradient(135deg, #e0f7fa, #ede7f6);
+      background: linear-gradient(135deg, #d1c4e9, #b2ebf2);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -28,117 +28,116 @@
     }
 
     header {
-  width: 100%;
-  padding: 20px 40px; /* ✅ 이걸 기본으로 고정 */
-  background: linear-gradient(135deg, #7e57c2, #5c6bc0);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-nav {
-  display: flex;
-  gap: 30px; /* ✅ 링크 간격 30px */
-  align-items: center;
-}
-
-nav a {
-  text-decoration: none;
-  color: white;
-  font-size: 1rem; /* ✅ 링크 폰트 크기 1rem */
-  padding-bottom: 5px;
-  position: relative;
-  transition: all 0.3s;
-}
-
-nav a::after {
-  content: '';
-  position: absolute;
-  width: 0%;
-  height: 2px;
-  bottom: 0;
-  left: 0;
-  background-color: white;
-  transition: all 0.3s ease-in-out;
-}
-
-nav a:hover {
-  color: #ffe082;
-}
-/* 구분선 */
-.nav-divider {
-  height: 20px;
-  width: 1px;
-  background-color: rgba(255, 255, 255, 0.5);
-  margin: 0 5px;
-}
-
-nav a:hover::after {
-  width: 100%;
-}
-
-    /* 커뮤니티 콘텐츠 */
-    .community-section {
-      max-width: 1280px;
       width: 100%;
-      margin: 40px auto;
-      padding: 0 30px;
+      padding: 20px 40px;
+      background: linear-gradient(135deg, #7e57c2, #5c6bc0);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    nav {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: white;
+      font-size: 1rem;
+      padding-bottom: 5px;
+      position: relative;
+      transition: all 0.3s;
+    }
+
+    nav a::after {
+      content: '';
+      position: absolute;
+      width: 0%;
+      height: 2px;
+      bottom: 0;
+      left: 0;
+      background-color: white;
+      transition: all 0.3s ease-in-out;
+    }
+
+    nav a:hover {
+      color: #ffe082;
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    .nav-divider {
+      height: 20px;
+      width: 1px;
+      background-color: rgba(255, 255, 255, 0.5);
+      margin: 0 5px;
+    }
+
+    /* 메인 섹션 */
+    .community-section {
+      max-width: 960px;
+      margin: 100px auto;
+      text-align: center;
+      padding: 40px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      animation: fadeIn 1.2s ease;
     }
 
     .community-section h2 {
-      font-size: 1.8rem;
-      color: #4a148c;
-      margin-bottom: 30px;
-      text-align: center;
-    }
-
-    .community-grid {
-      display: flex;
-      gap: 30px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .community-box {
-      flex: 1;
-      min-width: 280px;
-      max-width: 400px;
-      background: white;
-      padding: 25px;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-
-    .community-box h3 {
-      font-size: 1.2rem;
+      font-size: 2rem;
       color: #512da8;
+      margin-bottom: 20px;
+    }
+
+    .community-section p {
+      font-size: 1.2rem;
+      color: #444;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+
+    .chat-btn {
+      display: inline-block;
+      background: linear-gradient(135deg, #7e57c2, #512da8);
+      color: white;
+      padding: 14px 28px;
+      font-size: 1rem;
+      border-radius: 50px;
+      text-decoration: none;
+      box-shadow: 0 6px 12px rgba(126, 87, 194, 0.3);
+      transition: 0.3s;
+    }
+
+    .chat-btn:hover {
+      background: linear-gradient(135deg, #512da8, #311b92);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(81, 45, 168, 0.4);
+    }
+
+    .emoji {
+      font-size: 2.5rem;
       margin-bottom: 15px;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 5px;
+      animation: bounce 2s infinite;
     }
 
-    .community-box ul {
-      list-style: none;
-      padding-left: 0;
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
     }
 
-    .community-box li {
-      font-size: 0.95rem;
-      color: #333;
-      margin-bottom: 8px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .community-box li:hover {
-      color: #7e57c2;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     footer {
@@ -153,7 +152,7 @@ nav a:hover::after {
 </head>
 <body>
 
-  <!-- ✅ 내브바 직접 삽입 -->
+  <!-- ✅ 내브바 유지 -->
   <header>
     <div class="logo">
       <a href="/">커리어 네비</a>
@@ -174,21 +173,16 @@ nav a:hover::after {
     </nav>
   </header>
 
- <!-- 본문 -->
-<div class="community-section">
-  <h2>인기 커뮤니티</h2>
-
-  <div style="text-align: center; padding: 60px 20px;">
-    <p style="font-size: 1.2rem; color: #512da8; margin-bottom: 20px;">
-      현재 커뮤니티는 준비 중입니다 🛠️
-    </p>
-    <a href="https://open.kakao.com/o/gViVQQth" target="_blank" 
-       style="display: inline-block; background-color: #7e57c2; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-size: 1rem;">
-      🔗 오픈채팅으로 먼저 소통하기
+  <!-- 준비중 안내 -->
+  <div class="community-section">
+    <div class="emoji">🚧</div>
+    <h2>커뮤니티 서비스는 현재 준비 중입니다</h2>
+    <p>더 나은 커리어 소통 공간을 제공하기 위해 열심히 개발 중이에요.<br>
+       아래 오픈채팅을 통해 먼저 질문하고 의견을 나눠보세요!</p>
+    <a href="https://open.kakao.com/o/gViVQQth" target="_blank" class="chat-btn">
+      🔗 오픈채팅으로 소통하기
     </a>
   </div>
-</div>
-
 
 
 </body>
