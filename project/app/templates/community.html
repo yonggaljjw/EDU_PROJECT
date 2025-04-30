@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>커리어 네비 - 커뮤니티</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Pretendard', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #e0f7fa, #ede7f6);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo a {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: white;
+      text-decoration: none;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    header {
+  width: 100%;
+  padding: 20px 40px; /* ✅ 이걸 기본으로 고정 */
+  background: linear-gradient(135deg, #7e57c2, #5c6bc0);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+nav {
+  display: flex;
+  gap: 30px; /* ✅ 링크 간격 30px */
+  align-items: center;
+}
+
+nav a {
+  text-decoration: none;
+  color: white;
+  font-size: 1rem; /* ✅ 링크 폰트 크기 1rem */
+  padding-bottom: 5px;
+  position: relative;
+  transition: all 0.3s;
+}
+
+nav a::after {
+  content: '';
+  position: absolute;
+  width: 0%;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: white;
+  transition: all 0.3s ease-in-out;
+}
+
+nav a:hover {
+  color: #ffe082;
+}
+/* 구분선 */
+.nav-divider {
+  height: 20px;
+  width: 1px;
+  background-color: rgba(255, 255, 255, 0.5);
+  margin: 0 5px;
+}
+
+nav a:hover::after {
+  width: 100%;
+}
+
+    /* 커뮤니티 콘텐츠 */
+    .community-section {
+      max-width: 1280px;
+      width: 100%;
+      margin: 40px auto;
+      padding: 0 30px;
+    }
+
+    .community-section h2 {
+      font-size: 1.8rem;
+      color: #4a148c;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .community-grid {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .community-box {
+      flex: 1;
+      min-width: 280px;
+      max-width: 400px;
+      background: white;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .community-box h3 {
+      font-size: 1.2rem;
+      color: #512da8;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+    }
+
+    .community-box ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .community-box li {
+      font-size: 0.95rem;
+      color: #333;
+      margin-bottom: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .community-box li:hover {
+      color: #7e57c2;
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 20px;
+      background-color: #f3e5f5;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ✅ 내브바 직접 삽입 -->
+  <header>
+    <div class="logo">
+      <a href="/">커리어 네비</a>
+    </div>
+    <nav id="navbar">
+      {% if is_logged_in %}
+      <a href="/recommend/ai">AI진로추천</a>
+      <a href="/vision/plan">5Y컨설팅</a>
+      <a href="/chat/character/select">캐릭터챗</a>
+      <span class="nav-divider"></span>
+      <a href="/history">히스토리</a>
+      <a href="/profile">프로필</a>
+      <a href="/logout">로그아웃</a>
+      {% else %}
+      <a href="/login">로그인</a>
+      <a href="/register">회원가입</a>
+      {% endif %}
+    </nav>
+  </header>
+
+ <!-- 본문 -->
+<div class="community-section">
+  <h2>인기 커뮤니티</h2>
+
+  <div style="text-align: center; padding: 60px 20px;">
+    <p style="font-size: 1.2rem; color: #512da8; margin-bottom: 20px;">
+      현재 커뮤니티는 준비 중입니다 🛠️
+    </p>
+    <a href="https://open.kakao.com/o/gViVQQth" target="_blank" 
+       style="display: inline-block; background-color: #7e57c2; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-size: 1rem;">
+      🔗 오픈채팅으로 먼저 소통하기
+    </a>
+  </div>
+</div>
+
+
+
+</body>
+</html>
