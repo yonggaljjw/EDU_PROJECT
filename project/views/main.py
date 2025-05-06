@@ -10,7 +10,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import openai
 from elasticsearch import Elasticsearch
 from views.character_prompt import build_prompt, generate_greeting # 캐릭터챗 프롬프트 불러오기
-from views.models import db, CharacterChatHistory, CharacterChatState # 캐릭터 챗 대화 저장용
+from views.models import db, CharacterChatHistory # 캐릭터 챗 대화 저장용
 
 
 
@@ -529,8 +529,6 @@ def get_character_greeting():
 
     return jsonify({"greeting": greeting})
 
-
-# 캐릭터 메시지 보내는 API
 @main_bp.route('/chat/character/send_message', methods=['POST'])
 def send_message():
     data = request.get_json()
@@ -542,73 +540,21 @@ def send_message():
         return jsonify({"error": "로그인이 필요합니다."}), 401
 
     try:
-        speech_style_permission = False
         conversation_history = []
 
-        if character_code == "jihan":
-            # 최근 대화 이력 가져오기
-            recent_chats = CharacterChatHistory.query.filter_by(
-                user_id=user_id,
-                character_name=character_code
-            ).order_by(CharacterChatHistory.timestamp.desc()).limit(10).all()
-            recent_chats.reverse()
+        # 최근 대화 이력 불러오기
+        recent_chats = CharacterChatHistory.query.filter_by(
+            user_id=user_id,
+            character_name=character_code
+        ).order_by(CharacterChatHistory.timestamp.desc()).limit(10).all()
+        recent_chats.reverse()
 
-            for chat in recent_chats:
-                conversation_history.append(f"지한: {chat.character_response}")
-                conversation_history.append(f"학생: {chat.user_message}")
-
-            # 상태 불러오기
-            state = CharacterChatState.query.filter_by(
-                user_id=user_id,
-                character_name=character_code
-            ).first()
-
-            # 반말 해제 요청이 있는지 확인
-            for chat in recent_chats:
-                if ("반말" in chat.user_message or "존댓말" in chat.user_message) and (
-                    "하지 마" in chat.user_message or "쓰지 마" in chat.user_message or "해줘" in chat.user_message):
-                    if not state:
-                        state = CharacterChatState(
-                            user_id=user_id,
-                            character_name=character_code,
-                            speech_permission=False
-                        )
-                        db.session.add(state)
-                    else:
-                        state.speech_permission = False
-                    db.session.commit()
-                    speech_style_permission = False
-                    break
-
-            # 반말 허용 요청이 있는지 확인
-            if not speech_style_permission:
-                for chat in recent_chats:
-                    if "반말" in chat.character_response and (
-                        "괜찮" in chat.user_message or
-                        "좋" in chat.user_message or
-                        "해도 돼" in chat.user_message):
-                        if not state:
-                            state = CharacterChatState(
-                                user_id=user_id,
-                                character_name=character_code,
-                                speech_permission=True
-                            )
-                            db.session.add(state)
-                        else:
-                            state.speech_permission = True
-                        db.session.commit()
-                        speech_style_permission = True
-                        break
-            elif state and state.speech_permission:
-                speech_style_permission = True
-
-        # 최근 대화 이력 사용
-        retrieved_conversations = conversation_history  # 전체 맥락 유지
+        for chat in recent_chats:
+            conversation_history.append(f"{character_name_mapping[character_code]}: {chat.character_response}")
+            conversation_history.append(f"학생: {chat.user_message}")
 
         # 프롬프트 생성
-        prompt = build_prompt(character_code, question, retrieved_conversations)
-        if character_code == "jihan" and speech_style_permission:
-            prompt += "\n\n[중요] 학생이 이미 반말을 허락했습니다. 반말을 사용하세요."
+        prompt = build_prompt(character_code, question, conversation_history)
 
         # GPT 호출
         openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -624,7 +570,7 @@ def send_message():
 
         character_response = response['choices'][0]['message']['content']
 
-        # 노이즈 제거
+        # 불필요한 안내문 제거
         filtered_lines = []
         for line in character_response.split('\n'):
             if not any(keyword in line.lower() for keyword in 
