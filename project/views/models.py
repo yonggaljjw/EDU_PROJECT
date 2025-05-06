@@ -144,6 +144,18 @@ class EmploymentFull(db.Model):
     advanced_male = db.Column(db.Integer)
     advanced_female = db.Column(db.Integer)
 
+class CharacterChatState(db.Model):
+    __tablename__ = 'character_chat_state'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    character_name = db.Column(db.String(50), nullable=False)
+    speech_permission = db.Column(db.Boolean, default=False)
+    updated_at = db.Column(db.DateTime)
+    
+    user = db.relationship('User', backref=db.backref('chat_states', lazy=True))
+
+
 class CharacterChatHistory(db.Model):
     __tablename__ = 'character_chat_history'
 
