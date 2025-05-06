@@ -405,7 +405,7 @@ def vision_plan():
         if age < 18 or '고등학교' in year:
             army_info = "군 복무는 현재 고려하지 않아도 됩니다."
         else:
-            if army == "가는 편이다":
+            if army == "군 복무 예정":
                 army_info = "군 복무 예정이므로 복무 기간(약 1년 6개월~2년)은 온라인 학습, 자격증 준비 등에 활용하세요."
             else:
                 army_info = "군 복무 계획이 없으므로 바로 진학 또는 취업 준비를 하세요."
@@ -445,22 +445,39 @@ def vision_plan():
                 max_tokens=700
             )
             plan_text = response['choices'][0]['message']['content']
-
-            # ✅ 연차별로 분리하고, 마크다운 **굵은 글씨** 제거
             plan_lines = plan_text.split('\n')
-            plan_steps = []
-            for line in plan_lines:
-                clean_line = line.strip()
-                if clean_line:
-                    clean_line = re.sub(r'\*\*(.*?)\*\*', r'\1', clean_line)  # **텍스트** → 텍스트
-                    plan_steps.append(clean_line)
-
+            plan_steps = [re.sub(r'\*\*(.*?)\*\*', r'\1', line.strip()) for line in plan_lines if line.strip()]
         except Exception as e:
             plan_steps = [f"AI 호출 중 오류가 발생했습니다: {str(e)}"]
 
-        return render_template('vision_plan_result.html', plan_steps=plan_steps, goal=goal)
+        # ✅ 세션에 저장 후 결과 페이지로 이동
+        session['plan_steps'] = plan_steps
+        session['goal'] = goal
+        return redirect(url_for('main.vision_plan_result'))
 
     return render_template('vision_plan.html', **get_template_context())
+@main_bp.route('/vision/plan/result', methods=['GET'])
+def vision_plan_result():
+    if 'user_id' not in session:
+        flash("로그인 후 이용해주세요.")
+        return redirect(url_for('main.login'))
+
+    # ✅ 세션에서 pop으로 읽어오고 제거
+    plan_steps = session.pop('plan_steps', None)
+    goal = session.pop('goal', None)
+
+    if not plan_steps or not goal:
+        flash("잘못된 접근입니다.")
+        return redirect(url_for('main.vision_plan'))
+
+    return render_template(
+        'vision_plan_result.html',
+        plan_steps=plan_steps,
+        goal=goal,
+        **get_template_context()
+    )
+
+
 
 
 # 캐릭터 챗
@@ -604,3 +621,33 @@ def character_chat_history(character_name):
     histories = CharacterChatHistory.query.filter_by(character_name=character_name).order_by(CharacterChatHistory.timestamp.asc()).limit(50).all()
     return render_template('character_history.html', character_name=character_name, histories=histories, **get_template_context())
 
+
+
+# 게시글 데이터
+community_data = {
+    "경영학": [
+        "🔔 [모집] 2025 상반기 경영학 세미나 참가자 모집",
+        "🔔 [스터디] 경영 전략 케이스 스터디 팀원 모집",
+        "🔔 [정보] 국내 MBA 과정 설명회 일정 공유",
+        "🔔 [모집] 2025 취업 대비 경영학 모의면접반 모집",
+        "🔔 [소식] 경영학과 신입생 오리엔테이션 일정 발표"
+    ],
+    "데이터 분석": [
+        "🔔 [공모전] 제 7회 교육부 데이터 분석 공모전 개최",
+        "🔔 [모집] 파이썬 데이터 분석 스터디 (초급반)",
+        "🔔 [모집] SQL 데이터 처리 실습 그룹원 모집",
+        "🔔 [뉴스] 2025년 빅데이터 산업 트렌드 리포트 발간",
+        "🔔 [정보] Kaggle 대회 초보자 가이드 정리"
+    ],
+    "예술고": [
+        "🔔 [모집] 26년 00 예고 보컬 연습팀 멤버 찾습니다",
+        "🔔 [공지] 예고 입시 대비 포트폴리오 설명회 개최",
+        "🔔 [모집] 미술대학 입시 대비 모의면접반 참여자 모집",
+        "🔔 [소식] 2025 전국 청소년 연극제 참가 안내",
+        "🔔 [모집] 무용 전공 예비고1 워크숍 프로그램 오픈"
+    ]
+}
+
+@main_bp.route('/community')
+def community():
+    return render_template('community.html', **get_template_context())

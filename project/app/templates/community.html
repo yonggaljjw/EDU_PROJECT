@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>커리어 네비 - 커뮤니티</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Pretendard', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #d1c4e9, #b2ebf2);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo a {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: white;
+      text-decoration: none;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    header {
+      width: 100%;
+      padding: 20px 40px;
+      background: linear-gradient(135deg, #7e57c2, #5c6bc0);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    nav {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: white;
+      font-size: 1rem;
+      padding-bottom: 5px;
+      position: relative;
+      transition: all 0.3s;
+    }
+
+    nav a::after {
+      content: '';
+      position: absolute;
+      width: 0%;
+      height: 2px;
+      bottom: 0;
+      left: 0;
+      background-color: white;
+      transition: all 0.3s ease-in-out;
+    }
+
+    nav a:hover {
+      color: #ffe082;
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    .nav-divider {
+      height: 20px;
+      width: 1px;
+      background-color: rgba(255, 255, 255, 0.5);
+      margin: 0 5px;
+    }
+
+    /* 메인 섹션 */
+    .community-section {
+      max-width: 960px;
+      margin: 100px auto;
+      text-align: center;
+      padding: 40px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      animation: fadeIn 1.2s ease;
+    }
+
+    .community-section h2 {
+      font-size: 2rem;
+      color: #512da8;
+      margin-bottom: 20px;
+    }
+
+    .community-section p {
+      font-size: 1.2rem;
+      color: #444;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+
+    .chat-btn {
+      display: inline-block;
+      background: linear-gradient(135deg, #7e57c2, #512da8);
+      color: white;
+      padding: 14px 28px;
+      font-size: 1rem;
+      border-radius: 50px;
+      text-decoration: none;
+      box-shadow: 0 6px 12px rgba(126, 87, 194, 0.3);
+      transition: 0.3s;
+    }
+
+    .chat-btn:hover {
+      background: linear-gradient(135deg, #512da8, #311b92);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(81, 45, 168, 0.4);
+    }
+
+    .emoji {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 20px;
+      background-color: #f3e5f5;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ✅ 내브바 유지 -->
+  <header>
+    <div class="logo">
+      <a href="/">커리어 네비</a>
+    </div>
+    <nav id="navbar">
+      {% if is_logged_in %}
+      <a href="/recommend/ai">AI진로추천</a>
+      <a href="/vision/plan">5Y컨설팅</a>
+      <a href="/chat/character/select">캐릭터챗</a>
+      <span class="nav-divider"></span>
+      <a href="/history">히스토리</a>
+      <a href="/profile">프로필</a>
+      <a href="/logout">로그아웃</a>
+      {% else %}
+      <a href="/login">로그인</a>
+      <a href="/register">회원가입</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <!-- 준비중 안내 -->
+  <div class="community-section">
+    <div class="emoji">🚧</div>
+    <h2>커뮤니티 서비스는 현재 준비 중입니다</h2>
+    <p>더 나은 커리어 소통 공간을 제공하기 위해 열심히 개발 중이에요.<br>
+       아래 오픈채팅을 통해 먼저 질문하고 의견을 나눠보세요!</p>
+    <a href="https://open.kakao.com/o/gViVQQth" target="_blank" class="chat-btn">
+      🔗 오픈채팅으로 소통하기
+    </a>
+  </div>
+
+
+</body>
+</html>
