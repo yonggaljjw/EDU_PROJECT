@@ -529,39 +529,79 @@ def get_character_greeting():
 
     return jsonify({"greeting": greeting})
 
+
 # 캐릭터 메시지 보내는 API
 @main_bp.route('/chat/character/send_message', methods=['POST'])
 def send_message():
     data = request.get_json()
     character_code = data.get('character')  # 'hanul', 'jihan', 'isol'
     question = data.get('question')
-    retrieved_conversations = data.get('retrieved_conversations', [])
-
+    
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({"error": "로그인이 필요합니다."}), 401
 
     try:
-        openai.api_key = os.getenv("OPENAI_API_KEY")
-
+        # 지한 캐릭터의 경우, 이전 대화 기록을 확인하여 반말 허락 여부 확인
+        speech_style_permission = False
+        conversation_history = []
+        
+        if character_code == "jihan":
+            # 최근 대화 이력 가져오기
+            recent_chats = CharacterChatHistory.query.filter_by(
+                user_id=user_id,
+                character_name=character_code
+            ).order_by(CharacterChatHistory.timestamp.desc()).limit(10).all()
+            
+            # 대화 이력을 시간순으로 정렬
+            recent_chats.reverse()
+            
+            # 대화 이력 구성
+            for chat in recent_chats:
+                conversation_history.append(f"지한: {chat.character_response}")
+                conversation_history.append(f"학생: {chat.user_message}")
+                
+                # 반말 허락 여부 검사
+                if "반말" in chat.character_response and ("괜찮" in chat.user_message or 
+                                                        "좋" in chat.user_message or 
+                                                        "해도 돼" in chat.user_message):
+                    speech_style_permission = True
+        
+        # 최근 대화 기록 (검색된 상담 기록 대신 실제 대화 기록 활용)
+        retrieved_conversations = conversation_history[-6:] if conversation_history else []
+        
+        # 지한 캐릭터의 반말 상태를 프롬프트에 추가
         prompt = build_prompt(character_code, question, retrieved_conversations)
-
+        
+        if character_code == "jihan" and speech_style_permission:
+            prompt += "\n\n[중요] 학생이 이미 반말을 허락했습니다. 반말을 사용하세요."
+        
+        openai.api_key = os.getenv("OPENAI_API_KEY")
         response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "너는 학생 고민 상담 전문 캐릭터야."},
+                {"role": "system", "content": "너는 학생 고민 상담 전문 캐릭터야. 각 캐릭터의 말투와 성격을 정확히 유지해."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7,
-            max_tokens=800
+            max_tokens=300
         )
 
         character_response = response['choices'][0]['message']['content']
 
-        # ✅ user_id, character_code를 저장
+        # 프롬프트 노출 방지를 위한 후처리
+        filtered_lines = []
+        for line in character_response.split('\n'):
+            if not any(keyword in line.lower() for keyword in 
+                    ['[캐릭터', '[말투', '[응답', '[지시', '[중요', '[상담', '규칙']):
+                filtered_lines.append(line)
+        
+        character_response = '\n'.join(filtered_lines).strip()
+
+        # 대화 이력 저장
         chat_log = CharacterChatHistory(
             user_id=user_id,
-            character_name=character_code,  # hanul, jihan, isol 형태로 저장
+            character_name=character_code,
             user_message=question,
             character_response=character_response
         )
@@ -573,7 +613,6 @@ def send_message():
     except Exception as e:
         logging.error("❌ 캐릭터 메시지 송수신 실패: %s", traceback.format_exc())
         return jsonify({"error": "서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."}), 500
-
 
 # 캐릭터 대화 히스토리 조회 화면
 @main_bp.route('/chat/character/history/<character_name>', methods=['GET'])

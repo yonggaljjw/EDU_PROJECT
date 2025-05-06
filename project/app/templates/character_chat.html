@@ -391,394 +391,442 @@ nav a:hover::after {
     </div>
 
     <footer>
-        © 2025 AI 진로설계 시스템. All rights reserved.
+        © 2025 커리어 네비. All rights reserved.
     </footer>
 
     <script>
-        const characterName = "{{ character_code }}";
-        let isTyping = false;
+    // 개선된 대화 스크립트
 
-        document.getElementById('send-btn').addEventListener('click', sendMessage);
-        document.getElementById('user-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') sendMessage();
+const characterName = "{{ character_code }}";
+let isTyping = false;
+// 대화 상태 관리를 위한 객체 추가
+const chatState = {
+    speechStylePermission: false,    // 지한 캐릭터의 반말 허락 여부
+    waitingForSpeechStylePermission: false,  // 반말 허락 응답 대기 중인지
+    conversationCount: 0,           // 대화 카운트
+    lastMessages: []                // 최근 메시지 저장 (컨텍스트 제공용)
+};
+
+document.getElementById('send-btn').addEventListener('click', sendMessage);
+document.getElementById('user-input').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') sendMessage();
+});
+
+function getCurrentTime() {
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+}
+
+function addMessage(role, text) {
+    const chatBox = document.getElementById('chat-box');
+    const currentTime = getCurrentTime();
+
+    // 캐릭터 응답에서 이름 접두사 제거 ("이하늘:", "지한:", "이솔:")
+    if (role === 'bot') {
+        // 이름 접두사 패턴 확인 및 제거
+        const namePatterns = [/^이하늘\s*:\s*/i, /^하늘\s*:\s*/i, /^지한\s*:\s*/i, /^이솔\s*:\s*/i];
+        for (const pattern of namePatterns) {
+            text = text.replace(pattern, '');
+        }
+    }
+
+    // 메시지 그룹 생성
+    const messageGroup = document.createElement('div');
+    messageGroup.className = 'message-group ' + role;
+
+    if (role === 'bot') {
+        // 프로필 이미지 추가 (이미지 오류 처리 추가)
+        const profileImg = document.createElement('img');
+        profileImg.src = `/static/profiles/${characterName}.png`;
+        profileImg.alt = characterName;
+        profileImg.className = 'profile-img';
+        profileImg.onerror = function () {
+            this.onerror = null;
+            this.src = '/static/profiles/default.png'; // 기본 이미지로 대체
+        };
+        messageGroup.appendChild(profileImg);
+
+        // 메시지 컨테이너
+        const messageContainer = document.createElement('div');
+        messageContainer.className = 'message-container bot';
+
+        // 이름 추가
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'bot-name';
+        nameSpan.innerText = "{{ character_display_name }}";
+        messageContainer.appendChild(nameSpan);
+
+        // 메시지 내용
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message ' + role;
+        messageDiv.innerText = text;
+        messageContainer.appendChild(messageDiv);
+
+        // 시간 표시 추가
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'message-time';
+        timeSpan.innerText = currentTime;
+        messageContainer.appendChild(timeSpan);
+
+        messageGroup.appendChild(messageContainer);
+        
+        // 지한 캐릭터의 반말 허락 여부 검사 (챗봇 메시지)
+        if (characterName === 'jihan') {
+            // 반말 요청 메시지 감지
+            if (text.includes('반말') && (text.includes('괜찮을까') || text.includes('해도 될까'))) {
+                chatState.waitingForSpeechStylePermission = true;
+                console.log("반말 허락 요청 감지됨");
+            }
+        }
+        
+        // 최근 메시지 저장 (컨텍스트용)
+        chatState.lastMessages.push({role: 'bot', content: text});
+        if (chatState.lastMessages.length > 10) chatState.lastMessages.shift(); // 최대 10개 메시지만 유지
+        
+    } else {
+        // 메시지 컨테이너
+        const messageContainer = document.createElement('div');
+        messageContainer.className = 'message-container user';
+
+        // 메시지 내용
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message ' + role;
+        messageDiv.innerText = text;
+        messageContainer.appendChild(messageDiv);
+
+        // 시간 표시 추가
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'message-time';
+        timeSpan.innerText = currentTime;
+        messageContainer.appendChild(timeSpan);
+
+        messageGroup.appendChild(messageContainer);
+        
+        // 지한 캐릭터의 반말 허락 여부 검사 (사용자 메시지)
+        if (characterName === 'jihan' && chatState.waitingForSpeechStylePermission) {
+            // 허락 표현 감지
+            if (text.includes('괜찮아') || text.includes('좋아') || 
+                text.includes('해도 돼') || text.includes('해줘') ||
+                text.includes('허락') || text.includes('ㅇㅋ') ||
+                text.includes('OK') || text.includes('네')) {
+                chatState.speechStylePermission = true;
+                console.log("반말 허락됨");
+            } else {
+                console.log("반말 허락되지 않음");
+            }
+            chatState.waitingForSpeechStylePermission = false;
+        }
+        
+        // 최근 메시지 저장 (컨텍스트용)
+        chatState.lastMessages.push({role: 'user', content: text});
+        if (chatState.lastMessages.length > 10) chatState.lastMessages.shift(); // 최대 10개 메시지만 유지
+    }
+
+    chatBox.appendChild(messageGroup);
+    chatBox.scrollTop = chatBox.scrollHeight;
+    
+    // 대화 카운트 증가
+    chatState.conversationCount++;
+}
+
+function showTypingIndicator() {
+    if (isTyping) return;
+
+    // 기존 인디케이터 제거
+    hideTypingIndicator();
+
+    isTyping = true;
+    const chatBox = document.getElementById('chat-box');
+
+    // 타이핑 인디케이터 그룹 생성
+    const typingGroup = document.createElement('div');
+    typingGroup.className = 'message-group bot';
+    typingGroup.id = 'typing-group';
+
+    // 프로필 이미지 추가 (이미지 오류 처리 추가)
+    const profileImg = document.createElement('img');
+    profileImg.src = `/static/profiles/${characterName}.png`;
+    profileImg.alt = characterName;
+    profileImg.className = 'profile-img';
+    profileImg.onerror = function () {
+        this.onerror = null;
+        this.src = '/static/profiles/default.png'; // 기본 이미지로 대체
+    };
+    typingGroup.appendChild(profileImg);
+
+    // 메시지 컨테이너
+    const messageContainer = document.createElement('div');
+    messageContainer.className = 'message-container bot';
+
+    // 이름 추가
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'bot-name';
+    nameSpan.innerText = "{{ character_display_name }}";
+    messageContainer.appendChild(nameSpan);
+
+    // 타이핑 인디케이터
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'typing-indicator';
+    typingDiv.id = 'typing-indicator';
+
+    for (let i = 0; i < 3; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'typing-dot';
+        typingDiv.appendChild(dot);
+    }
+
+    messageContainer.appendChild(typingDiv);
+    typingGroup.appendChild(messageContainer);
+
+    chatBox.appendChild(typingGroup);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function hideTypingIndicator() {
+    // 초기 타이핑 인디케이터 숨기기
+    const initialTypingGroup = document.getElementById('initial-typing-group');
+    if (initialTypingGroup) {
+        initialTypingGroup.remove();
+    }
+
+    // 일반 타이핑 인디케이터 숨기기
+    const typingGroup = document.getElementById('typing-group');
+    if (typingGroup) {
+        typingGroup.remove();
+    }
+    isTyping = false;
+}
+
+// 긴 메시지를 여러 부분으로 나누는 함수
+function splitMessage(message, maxLength = 150) {
+    // 두 줄 개행으로 단락 분할 (가장 자연스러운 분할 방법)
+    const paragraphs = message.split(/\n\n+/);
+    if (paragraphs.length > 1) {
+        return paragraphs.filter(p => p.trim() !== '');
+    }
+
+    // 너무 짧은 메시지는 분할할 필요가 없음
+    if (message.length <= maxLength) {
+        return [message];
+    }
+
+    const parts = [];
+    let currentPart = "";
+
+    // 문장 단위로 분할하기 위한 정규식 (온점, 물음표, 느낌표 뒤에 공백이 있는 패턴)
+    const sentences = message.match(/[^.!?]+[.!?]+\s*/g) || [];
+
+    if (sentences.length === 0) {
+        // 문장 구분이 어려운 경우, 단어 단위로 분할
+        const words = message.split(' ');
+        for (const word of words) {
+            if ((currentPart + word).length > maxLength) {
+                if (currentPart) {
+                    parts.push(currentPart.trim());
+                    currentPart = "";
+                }
+            }
+            currentPart += word + " ";
+        }
+        if (currentPart) {
+            parts.push(currentPart.trim());
+        }
+    } else {
+        // 문장 단위로 분할
+        for (const sentence of sentences) {
+            if ((currentPart + sentence).length > maxLength) {
+                if (currentPart) {
+                    parts.push(currentPart.trim());
+                    currentPart = "";
+                }
+
+                // 하나의 문장이 maxLength보다 길 경우
+                if (sentence.length > maxLength) {
+                    const words = sentence.split(' ');
+                    for (const word of words) {
+                        if ((currentPart + word).length > maxLength) {
+                            if (currentPart) {
+                                parts.push(currentPart.trim());
+                                currentPart = "";
+                            }
+                        }
+                        currentPart += word + " ";
+                    }
+                } else {
+                    currentPart = sentence;
+                }
+            } else {
+                currentPart += sentence;
+            }
+        }
+        if (currentPart) {
+            parts.push(currentPart.trim());
+        }
+    }
+
+    return parts;
+}
+
+// 지연 함수 (메시지 사이에 시간 간격을 두기 위함)
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// 메시지를 순차적으로 보내는 함수
+async function sendMessageSequentially(response) {
+    hideTypingIndicator(); // 기존 타이핑 인디케이터 숨기기
+
+    // 프롬프트 노출 제거 처리
+    let cleanedResponse = response;
+    
+    // 지시문이나 프롬프트 텍스트 필터링
+    const promptPatterns = [
+        /\[캐릭터\s*설정\]/i, /\[말투\s*특징\]/i, /\[응답\s*규칙\]/i, 
+        /\[지시사항\]/i, /\[중요\]/i, /\[상담\s*상황\]/i
+    ];
+    
+    // 줄 단위로 검사하여 프롬프트 지시문이 포함된 줄 제거
+    const lines = cleanedResponse.split('\n');
+    const cleanedLines = lines.filter(line => {
+        return !promptPatterns.some(pattern => pattern.test(line));
+    });
+    
+    cleanedResponse = cleanedLines.join('\n')
+        .replace(/\n{3,}/g, '\n\n') // 3개 이상 연속된 개행 제거
+        .trim();
+        
+    // 이름 접두사 패턴 제거 ("이하늘:", "지한:", "이솔:")
+    const namePatterns = [/^이하늘\s*:\s*/i, /^하늘\s*:\s*/i, /^지한\s*:\s*/i, /^이솔\s*:\s*/i];
+    for (const pattern of namePatterns) {
+        cleanedResponse = cleanedResponse.replace(pattern, '');
+    }
+
+    const messageParts = splitMessage(cleanedResponse);
+    console.log("메시지 분할됨:", messageParts.length, "개 부분");
+
+    for (let i = 0; i < messageParts.length; i++) {
+        // 마지막 부분이 아니면 타이핑 인디케이터 표시
+        if (i < messageParts.length - 1) {
+            showTypingIndicator();
+            await delay(Math.random() * 500 + 800); // 800~1300ms 사이 랜덤한 지연
+            hideTypingIndicator();
+        }
+
+        addMessage('bot', messageParts[i]);
+
+        // 마지막 부분이 아니면 약간의 지연
+        if (i < messageParts.length - 1) {
+            await delay(400);
+        }
+    }
+}
+
+async function sendMessage() {
+    const input = document.getElementById('user-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    addMessage('user', text); // 사용자가 입력한 메시지 추가
+    input.value = '';
+
+    // 타이핑 인디케이터 표시
+    showTypingIndicator();
+
+    try {
+        // 최근 대화 기록을 평문 형태로 변환
+        const recentConversations = chatState.lastMessages
+            .map(msg => `${msg.role === 'user' ? '학생' : characterName}: ${msg.content}`)
+            .slice(-6); // 최근 6개 메시지만 사용
+        
+        const response = await fetch('/chat/character/send_message', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                character: characterName,
+                question: text,
+                retrieved_conversations: recentConversations,
+                speechStylePermission: chatState.speechStylePermission // 반말 허락 여부 전달
+            })
         });
 
-        function getCurrentTime() {
-            const now = new Date();
-            const hours = now.getHours().toString().padStart(2, '0');
-            const minutes = now.getMinutes().toString().padStart(2, '0');
-            return `${hours}:${minutes}`;
-        }
-
-        function addMessage(role, text) {
-            const chatBox = document.getElementById('chat-box');
-            const currentTime = getCurrentTime();
-
-            // 메시지 그룹 생성
-            const messageGroup = document.createElement('div');
-            messageGroup.className = 'message-group ' + role;
-
-            if (role === 'bot') {
-                // 프로필 이미지 추가 (이미지 오류 처리 추가)
-                const profileImg = document.createElement('img');
-                profileImg.src = `/static/profiles/${characterName}.png`;
-                profileImg.alt = characterName;
-                profileImg.className = 'profile-img';
-                profileImg.onerror = function () {
-                    this.onerror = null;
-                    this.src = '/static/profiles/default.png'; // 기본 이미지로 대체
-                };
-                messageGroup.appendChild(profileImg);
-
-                // 메시지 컨테이너
-                const messageContainer = document.createElement('div');
-                messageContainer.className = 'message-container bot';
-
-                // 이름 추가
-                const nameSpan = document.createElement('span');
-                nameSpan.className = 'bot-name';
-                nameSpan.innerText = "{{ character_display_name }}";
-                messageContainer.appendChild(nameSpan);
-
-                // 메시지 내용
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'message ' + role;
-                messageDiv.innerText = text;
-                messageContainer.appendChild(messageDiv);
-
-                // 시간 표시 추가
-                const timeSpan = document.createElement('span');
-                timeSpan.className = 'message-time';
-                timeSpan.innerText = currentTime;
-                messageContainer.appendChild(timeSpan);
-
-                messageGroup.appendChild(messageContainer);
-            } else {
-                // 메시지 컨테이너
-                const messageContainer = document.createElement('div');
-                messageContainer.className = 'message-container user';
-
-                // 메시지 내용
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'message ' + role;
-                messageDiv.innerText = text;
-                messageContainer.appendChild(messageDiv);
-
-                // 시간 표시 추가
-                const timeSpan = document.createElement('span');
-                timeSpan.className = 'message-time';
-                timeSpan.innerText = currentTime;
-                messageContainer.appendChild(timeSpan);
-
-                messageGroup.appendChild(messageContainer);
-            }
-
-            chatBox.appendChild(messageGroup);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        function showTypingIndicator() {
-            if (isTyping) return;
-
-            // 기존 인디케이터 제거
+        const data = await response.json();
+        if (response.ok) {
+            await sendMessageSequentially(data.response); // 순차적으로 메시지 보내기
+        } else {
             hideTypingIndicator();
-
-            isTyping = true;
-            const chatBox = document.getElementById('chat-box');
-
-            // 타이핑 인디케이터 그룹 생성
-            const typingGroup = document.createElement('div');
-            typingGroup.className = 'message-group bot';
-            typingGroup.id = 'typing-group';
-
-            // 프로필 이미지 추가 (이미지 오류 처리 추가)
-            const profileImg = document.createElement('img');
-            profileImg.src = `/static/profiles/${characterName}.png`;
-            profileImg.alt = characterName;
-            profileImg.className = 'profile-img';
-            profileImg.onerror = function () {
-                this.onerror = null;
-                this.src = '/static/profiles/default.png'; // 기본 이미지로 대체
-            };
-            typingGroup.appendChild(profileImg);
-
-            // 메시지 컨테이너
-            const messageContainer = document.createElement('div');
-            messageContainer.className = 'message-container bot';
-
-            // 이름 추가
-            const nameSpan = document.createElement('span');
-            nameSpan.className = 'bot-name';
-            nameSpan.innerText = "{{ character_display_name }}";
-            messageContainer.appendChild(nameSpan);
-
-            // 타이핑 인디케이터
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'typing-indicator';
-            typingDiv.id = 'typing-indicator';
-
-            for (let i = 0; i < 3; i++) {
-                const dot = document.createElement('div');
-                dot.className = 'typing-dot';
-                typingDiv.appendChild(dot);
-            }
-
-            messageContainer.appendChild(typingDiv);
-            typingGroup.appendChild(messageContainer);
-
-            chatBox.appendChild(typingGroup);
-            chatBox.scrollTop = chatBox.scrollHeight;
+            addMessage('bot', '⚠️ 다시 시도해 주세요.');
         }
+    } catch (error) {
+        hideTypingIndicator();
+        console.error(error);
+        addMessage('bot', '⚠️ 서버에 연결할 수 없습니다.');
+    }
+}
 
-        function hideTypingIndicator() {
-            // 초기 타이핑 인디케이터 숨기기
+// 페이지 로드되자마자 첫 인사말 보내기
+window.onload = function () {
+    // 약간의 지연 후 인사말 요청
+    setTimeout(async function () {
+        try {
+            const response = await fetch('/chat/character/get_greeting', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ character: characterName })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                // 초기 타이핑 인디케이터는 그대로 두고 인사말 처리
+                const initialTypingGroup = document.getElementById('initial-typing-group');
+                if (initialTypingGroup) {
+                    // 타이핑 인디케이터 제거하면서 인사말 추가
+                    initialTypingGroup.remove();
+                    isTyping = false;
+
+                    // 이름 접두사 제거 처리
+                    let greeting = data.greeting;
+                    const namePatterns = [/^이하늘\s*:\s*/i, /^하늘\s*:\s*/i, /^지한\s*:\s*/i, /^이솔\s*:\s*/i];
+                    for (const pattern of namePatterns) {
+                        greeting = greeting.replace(pattern, '');
+                    }
+
+                    await sendMessageSequentially(greeting); // 순차적으로 인사말 보내기
+                } else {
+                    // 혹시 초기 인디케이터가 없으면 새로 인사말 보내기
+                    hideTypingIndicator();
+                    await sendMessageSequentially(data.greeting);
+                }
+            } else {
+                
+                // 초기 인디케이터 제거
+                const initialTypingGroup = document.getElementById('initial-typing-group');
+                if (initialTypingGroup) {
+                    initialTypingGroup.remove();
+                    isTyping = false;
+                }
+
+                addMessage('bot', "안녕하세요! 무엇이든 편하게 이야기해봐요. 😊");  // 실패했을 때 기본값
+            }
+        } catch (error) {
+            console.error(error);
+
+            // 초기 인디케이터 제거
             const initialTypingGroup = document.getElementById('initial-typing-group');
             if (initialTypingGroup) {
                 initialTypingGroup.remove();
+                isTyping = false;
             }
 
-            // 일반 타이핑 인디케이터 숨기기
-            const typingGroup = document.getElementById('typing-group');
-            if (typingGroup) {
-                typingGroup.remove();
-            }
-            isTyping = false;
+            addMessage('bot', "안녕하세요! 무엇이든 편하게 이야기해봐요. 😊");
         }
-
-        // 긴 메시지를 여러 부분으로 나누는 함수
-        function splitMessage(message, maxLength = 150) {
-            // 두 줄 개행으로 단락 분할 (가장 자연스러운 분할 방법)
-            const paragraphs = message.split(/\n\n+/);
-            if (paragraphs.length > 1) {
-                return paragraphs.filter(p => p.trim() !== '');
-            }
-
-            // 너무 짧은 메시지는 분할할 필요가 없음
-            if (message.length <= maxLength) {
-                return [message];
-            }
-
-            const parts = [];
-            let currentPart = "";
-
-            // 문장 단위로 분할하기 위한 정규식 (온점, 물음표, 느낌표 뒤에 공백이 있는 패턴)
-            const sentences = message.match(/[^.!?]+[.!?]+\s*/g) || [];
-
-            if (sentences.length === 0) {
-                // 문장 구분이 어려운 경우, 단어 단위로 분할
-                const words = message.split(' ');
-                for (const word of words) {
-                    if ((currentPart + word).length > maxLength) {
-                        if (currentPart) {
-                            parts.push(currentPart.trim());
-                            currentPart = "";
-                        }
-                    }
-                    currentPart += word + " ";
-                }
-                if (currentPart) {
-                    parts.push(currentPart.trim());
-                }
-            } else {
-                // 문장 단위로 분할
-                for (const sentence of sentences) {
-                    if ((currentPart + sentence).length > maxLength) {
-                        if (currentPart) {
-                            parts.push(currentPart.trim());
-                            currentPart = "";
-                        }
-
-                        // 하나의 문장이 maxLength보다 길 경우
-                        if (sentence.length > maxLength) {
-                            const words = sentence.split(' ');
-                            for (const word of words) {
-                                if ((currentPart + word).length > maxLength) {
-                                    if (currentPart) {
-                                        parts.push(currentPart.trim());
-                                        currentPart = "";
-                                    }
-                                }
-                                currentPart += word + " ";
-                            }
-                        } else {
-                            currentPart = sentence;
-                        }
-                    } else {
-                        currentPart += sentence;
-                    }
-                }
-                if (currentPart) {
-                    parts.push(currentPart.trim());
-                }
-            }
-
-            return parts;
-        }
-
-        // 지연 함수 (메시지 사이에 시간 간격을 두기 위함)
-        function delay(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        // 메시지를 순차적으로 보내는 함수
-        async function sendMessageSequentially(response) {
-            hideTypingIndicator(); // 기존 타이핑 인디케이터 숨기기
-
-            const messageParts = splitMessage(response);
-            console.log("메시지 분할됨:", messageParts.length, "개 부분");
-
-            for (let i = 0; i < messageParts.length; i++) {
-                // 마지막 부분이 아니면 타이핑 인디케이터 표시
-                if (i < messageParts.length - 1) {
-                    showTypingIndicator();
-                    await delay(Math.random() * 500 + 800); // 800~1300ms 사이 랜덤한 지연
-                    hideTypingIndicator();
-                }
-
-                addMessage('bot', messageParts[i]);
-
-                // 마지막 부분이 아니면 약간의 지연
-                if (i < messageParts.length - 1) {
-                    await delay(400);
-                }
-            }
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('user-input');
-            const text = input.value.trim();
-            if (!text) return;
-
-            addMessage('user', text); // 사용자가 입력한 메시지 추가
-            input.value = '';
-
-            // 타이핑 인디케이터 표시
-            showTypingIndicator();
-
-            try {
-                const response = await fetch('/chat/character/send_message', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        character: characterName,
-                        question: text,
-                        retrieved_conversations: []  // (추후 검색 기록 붙일 수 있음)
-                    })
-                });
-
-                const data = await response.json();
-                if (response.ok) {
-                    await sendMessageSequentially(data.response); // 순차적으로 메시지 보내기
-                } else {
-                    hideTypingIndicator();
-                    addMessage('bot', '⚠️ 다시 시도해 주세요.');
-                }
-            } catch (error) {
-                hideTypingIndicator();
-                console.error(error);
-                addMessage('bot', '⚠️ 서버에 연결할 수 없습니다.');
-            }
-        }
-
-        async function sendGreeting() {
-            try {
-                const response = await fetch('/chat/character/get_greeting', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ character: characterName })
-                });
-
-                const data = await response.json();
-                if (response.ok) {
-                    await sendMessageSequentially(data.greeting); // 순차적으로 인사말 보내기
-                } else {
-                    addMessage('bot', "안녕하세요! 무엇이든 편하게 이야기해봐요. 😊");  // 실패했을 때 기본값
-                }
-            } catch (error) {
-                console.error(error);
-                addMessage('bot', "안녕하세요! 무엇이든 편하게 이야기해봐요. 😊");
-            }
-        }
-
-        // 테스트 메시지 (디버깅용)
-        function testSplitMessage() {
-            const testMessage = `안녕, 혹시 내가 편하게 반말로 이야기해도 괜찮을까?
-
-미술로 가고 싶다는 거지? 그게 너의 꿈이라면 지금 당장 시도해 보는 것도 좋을 것 같아. 어차피 삶은 너의 것이니까, 너가 원하는 길을 선택하는 게 중요하다고 생각해. 물론, 남들의 의견도 중요하지만 결국 너의 삶은 너가 주인공이니까.
-
-하지만, 한 가지 조언을 해줄게. 미술이라는 길은 쉽지 않을 수 있어. 그래서 더욱 준비가 필요해. 미술에 대한 열정을 잃지 않도록, 너의 꿈을 지키기 위한 계획을 세우는 걸 추천해.
-
-그러니까 지금이라도 미술에 대해 조금 더 알아보고, 자신이 정말로 원하는 것이 무엇인지, 그 길을 가기 위해 어떤 노력이 필요한지 생각해보면 좋을 것 같아. 확실한 건, 어떤 선택을 하든 후회하지 않도록 최선을 다하는 것이야.
-
-미술이라는 길로 가는 것에 대해 더 이야기하고 싶다면 언제든지 내게 말해 줘. 항상 들어줄 준비가 되어 있으니까.`;
-
-            console.log("테스트 메시지 분할:");
-            const parts = splitMessage(testMessage);
-            console.log("분할된 부분:", parts.length);
-            parts.forEach((part, i) => console.log(`부분 ${i + 1}:`, part));
-
-            return parts;
-        }
-
-        // 페이지 로드되자마자 첫 인사말 보내기
-        window.onload = function () {
-            // 약간의 지연 후 인사말 요청
-            setTimeout(async function () {
-                try {
-                    const response = await fetch('/chat/character/get_greeting', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ character: characterName })
-                    });
-
-                    const data = await response.json();
-                    if (response.ok) {
-                        // 초기 타이핑 인디케이터는 그대로 두고 인사말 처리
-                        const initialTypingGroup = document.getElementById('initial-typing-group');
-                        if (initialTypingGroup) {
-                            // 타이핑 인디케이터 제거하면서 인사말 추가
-                            initialTypingGroup.remove();
-                            isTyping = false;
-
-                            await sendMessageSequentially(data.greeting); // 순차적으로 인사말 보내기
-                        } else {
-                            // 혹시 초기 인디케이터가 없으면 새로 인사말 보내기
-                            hideTypingIndicator();
-                            await sendMessageSequentially(data.greeting);
-                        }
-                    } else {
-                        // 초기 인디케이터 제거
-                        const initialTypingGroup = document.getElementById('initial-typing-group');
-                        if (initialTypingGroup) {
-                            initialTypingGroup.remove();
-                            isTyping = false;
-                        }
-
-                        addMessage('bot', "안녕하세요! 무엇이든 편하게 이야기해봐요. 😊");  // 실패했을 때 기본값
-                    }
-                } catch (error) {
-                    console.error(error);
-
-                    // 초기 인디케이터 제거
-                    const initialTypingGroup = document.getElementById('initial-typing-group');
-                    if (initialTypingGroup) {
-                        initialTypingGroup.remove();
-                        isTyping = false;
-                    }
-
-                    addMessage('bot', "안녕하세요! 무엇이든 편하게 이야기해봐요. 😊");
-                }
-            }, 500); // 500ms 후에 인사말 요청 시작
-
-            // 디버깅을 위한 테스트 (주석 처리)
-            // console.log(testSplitMessage());
-        };
+    }, 500); // 500ms 후에 인사말 요청 시작
+};
     </script>
 
 </body>
