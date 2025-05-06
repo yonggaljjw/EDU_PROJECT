@@ -397,6 +397,6 @@ def generate_greeting(character_code):
 
     try:
         return call_llm_api(prompt)
-    except Exception:
-        # 오류 발생 시 비상용 인사말 반환
+    except Exception as e:
+        print(f"[ERROR] OpenAI 호출 실패: {e}")
         return generate_emergency_greeting(character_code)

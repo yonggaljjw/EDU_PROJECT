@@ -67,7 +67,7 @@ def generate_character_response(character_name, student_question):
 
     # OpenAI GPT 호출
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",  # 또는 "gpt-4" 사용 가능
+        model="gpt-3.5-turbo",  # 또는 "gpt-3.5-turbo" 사용 가능
         messages=[
             {"role": "system", "content": "너는 학생 상담을 도와주는 친절한 조언자야."},
             {"role": "user", "content": prompt}
