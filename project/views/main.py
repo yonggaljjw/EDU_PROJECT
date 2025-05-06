@@ -306,7 +306,7 @@ def get_gpt_answer(index, question_type, profile, answer):
 
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4-1106-preview",
             messages=[
                 {"role": "system", "content": "너는 진로 전문 상담가야. 아래의 유사 직무능력 정보도 반드시 참고해서 답변해."},
                 {"role": "user", "content": prompt}
@@ -436,7 +436,7 @@ def vision_plan():
 
         try:
             response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4-1106-preview",
                 messages=[
                     {"role": "system", "content": "너는 현실적이고 간결한 문단형 커리어 플랜 전문가야."},
                     {"role": "user", "content": prompt}
@@ -509,7 +509,7 @@ def character_chat():
 def call_llm_api(prompt):
     openai.api_key = os.getenv("OPENAI_API_KEY")
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4-1106-preview",
         messages=[
             {"role": "system", "content": "너는 학생 고민 상담을 돕는 캐릭터야."},
             {"role": "user", "content": prompt}

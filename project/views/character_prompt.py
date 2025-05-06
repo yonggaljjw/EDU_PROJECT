@@ -199,7 +199,8 @@ def call_llm_api(prompt):
     openai.api_key = os.getenv("OPENAI_API_KEY")
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4-1106-preview",  # 더 안정적인 모델로 변경
+
             messages=[
                 {"role": "system", "content": "너는 학생 상담을 위한 캐릭터 역할을 정확히 수행하는 AI 어시스턴트야."},
                 {"role": "user", "content": prompt}
